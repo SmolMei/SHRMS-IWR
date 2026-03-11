@@ -1,0 +1,13 @@
+# Virtual environment
+.venv/
+
+# Python bytecode
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Personal development notes (not source code)
+Edits
+
+# Backup files (Git is the backup system now)
+rule_engine_backup.py
