@@ -74,8 +74,9 @@ class RuleEngine:
                 days_requested          (int)  — e.g. 3
                 days_remaining_balance  (int)  — e.g. 10
                 start_date              (date) — e.g. date(2025, 9, 1)
-                has_medical_certificate (bool) — True or False
-                has_solo_parent_id      (bool) — True or False
+                has_medical_certificate  (bool) — True or False
+                has_solo_parent_id       (bool) — True or False
+                has_marriage_certificate (bool) — True or False
 
         Returns:
             (True,  "Compliant")      — all rules passed, proceed to Decision Tree
@@ -129,7 +130,8 @@ class RuleEngine:
         # ------------------------------------------------------------------
         # RULE 5: Fixed-entitlement leaves cannot exceed their annual cap
         # Covers: maternity (105), paternity (7), solo parent (7),
-        #         force (5), special privilege (3), wellness (5)
+        #         force (5), special privilege (3), wellness (5),
+        #         special sick leave for women (90)
         # IF leave_type has a fixed cap
         # AND days_requested > max_days THEN return
         # ------------------------------------------------------------------

@@ -105,7 +105,7 @@ def generate_ipcr_data(samples_per_employee=100):
 
     Parameters:
         samples_per_employee (int) — training records per employee.
-                                     9 eligible employees x 100 = 900 total records.
+                                     21 eligible employees x 100 = 2,100 total records.
 
     Returns:
         pandas DataFrame with columns:
@@ -215,7 +215,7 @@ def generate_leave_data(samples_per_employee=100):
 
     Parameters:
         samples_per_employee (int) — training records per employee.
-                                     10 employees x 100 = 1,000 total records.
+                                     22 employees x 100 = 2,200 total records.
 
     Returns:
         pandas DataFrame with columns matching LEAVE_FEATURES + routing_action.

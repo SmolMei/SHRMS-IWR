@@ -341,7 +341,7 @@ IPCR_DT_ACTIONS = {
 # The Decision Tree uses all 7 together to determine the next routing action.
 LEAVE_FEATURES = [
     # --- Application fields ---
-    "leave_type_encoded",      # int   — encoded leave type (0–7)
+    "leave_type_encoded",      # int   — encoded leave type (0–8)
     "days_requested",          # int   — number of days filed
     "days_balance",            # int   — remaining leave credits (0 for fixed-entitlement)
     "has_required_attachment", # int   — 1 if required document attached, 0 if not

@@ -298,10 +298,9 @@ class WorkflowRouter:
             start_date                (date)  planned start date — used by Rule Engine
 
             # --- Attachments (for Rule Engine compliance check) ---
-            has_medical_certificate   (bool)  required: sick leave > 6 days
+            has_medical_certificate   (bool)  required: sick leave > 6 days; special_sick_leave_for_women (always)
             has_solo_parent_id        (bool)  required: solo_parent_leave
-            has_written_justification (bool)  required: special_privilege_leave
-            has_wellness_certificate  (bool)  required: wellness_leave
+            has_marriage_certificate  (bool)  required: paternity_leave
 
             # --- Current decision state (updated by controller after each step) ---
             dh_decision               (int)   0=pending, 1=approved, 2=rejected
@@ -339,13 +338,13 @@ class WorkflowRouter:
         #   Rule 1  — Employee must exist in the system
         #   Rule 2  — Leave type must be a recognized CSC category
         #   Rule 3  — Days requested must be >= 1
-        #   Rule 4  — Vacation/sick leave cannot exceed remaining balance
+        #   Rule 4  — Vacation/sick/force leave cannot exceed remaining balance
         #   Rule 5  — Fixed-entitlement leaves cannot exceed annual cap
-        #   Rule 6  — Vacation leave must be filed >= 5 days in advance
+        #   Rule 6  — Advance notice (vacation 5d, force 5d, maternity/paternity 30d, etc.)
         #   Rule 7  — Sick leave > 6 days requires a medical certificate
         #   Rule 8  — Solo Parent Leave requires a Solo Parent ID card
-        #   Rule 9  — Special Privilege Leave requires written justification
-        #   Rule 10 — Wellness Leave requires a wellness certificate
+        #   Rule 9  — Paternity Leave requires a Marriage Certificate
+        #   Rule 10 — Special Sick Leave for Women requires a medical certificate
         #
         # If ANY rule fails, the application is returned immediately.
         # Layer 2 is never called on a non-compliant application.
