@@ -1,471 +1,368 @@
 # =============================================================================
 # main.py
 # SHRMS — Intelligent Workflow Routing
-# Thesis Adviser Presentation — CLI Demo
+# Interactive CLI Demo
 #
 # HOW TO RUN:
 #   python -X utf8 main.py
-#
-# WHAT THIS DOES:
-#   A menu-driven demo that walks through 10 pre-scripted scenarios
-#   (5 IPCR + 5 Leave) and visually exposes the two-layer pipeline:
-#     Layer 1 — Rule Engine (Rete Algorithm / Forward Chaining)
-#     Layer 2 — Decision Tree (sklearn / Supervised Classification)
 # =============================================================================
 
 from datetime import date, timedelta
-from org_and_rules import EMPLOYEES, ROLE_ENCODING, LEAVE_TYPE_ENCODING
+from org_and_rules import EMPLOYEES, LEAVE_TYPE_ENCODING
+
 from workflow_router import WorkflowRouter
 
-router = WorkflowRouter()   # loads both .pkl models once at startup
+router = WorkflowRouter()
 
-_W = 62   # box width (characters)
-_FUTURE = date.today() + timedelta(days=10)
+_LINE = "-" * 50
+_DEFAULT_START = date.today() + timedelta(days=10)
+
+# Leave types in display order (matches LEAVE_TYPE_ENCODING)
+_LEAVE_TYPES = [
+    ("vacation_leave",          "Vacation Leave"),
+    ("sick_leave",              "Sick Leave"),
+    ("maternity_leave",         "Maternity Leave"),
+    ("paternity_leave",         "Paternity Leave"),
+    ("solo_parent_leave",       "Solo Parent Leave"),
+    ("force_leave",             "Force Leave"),
+    ("special_privilege_leave", "Special Privilege Leave"),
+    ("wellness_leave",          "Wellness Leave"),
+]
+
+# Which leave types require an attachment and what it's called
+_ATTACHMENTS = {
+    "sick_leave":              ("has_medical_certificate",   "Medical Certificate"),
+    "solo_parent_leave":       ("has_solo_parent_id",        "Solo Parent ID Card"),
+    "special_privilege_leave": ("has_written_justification", "Written Justification"),
+    "wellness_leave":          ("has_wellness_certificate",  "Wellness Certificate"),
+}
 
 
 # =============================================================================
 # SECTION B — Display helpers
 # =============================================================================
 
-def _hline(char="─"):
-    print("  " + char * _W)
+def divider():
+    print(_LINE)
 
-def box(title, lines):
+def header(title):
     print()
-    print("  ┌" + "─" * _W + "┐")
-    print("  │  " + title.upper().ljust(_W - 2) + "  │")
-    print("  ├" + "─" * _W + "┤")
-    for line in lines:
-        print("  │  " + str(line).ljust(_W - 2) + "  │")
-    print("  └" + "─" * _W + "┘")
+    divider()
+    print(title.upper())
+    divider()
 
-def section_header(text):
+def step_header(n, name):
+    print(f"\nStep {n}: {name}")
+    print("-" * 30)
+
+
+# =============================================================================
+# SECTION C — Input helpers
+# =============================================================================
+
+def ask_yn(prompt):
+    """Ask a yes/no question; return True for 'y'."""
+    while True:
+        ans = input(prompt).strip().lower()
+        if ans in ("y", "yes"):
+            return True
+        if ans in ("n", "no"):
+            return False
+        print("  Please enter y or n.")
+
+
+def ask_employee_id():
+    """Prompt for a valid Employee ID; reprompt until found in EMPLOYEES."""
+    while True:
+        eid = input("\nEnter Employee ID (e.g. EMP-005): ").strip().upper()
+        if eid in EMPLOYEES:
+            return eid
+        print(f"  Employee ID '{eid}' not found. Please try again.")
+        print("  Valid IDs: EMP-001 to EMP-021")
+
+
+def ask_ipcr_inputs(employee_id):
+    """Collect IPCR form inputs interactively. Returns a form dict."""
     print()
+    first = ask_yn("Is this a first submission? (y/n): ")
+
+    rating = None
+    gave_remarks = False
+
+    if not first:
+        while True:
+            try:
+                rating = float(input("Enter performance rating (1.0 - 5.0): ").strip())
+                if 1.0 <= rating <= 5.0:
+                    break
+                print("  Rating must be between 1.0 and 5.0.")
+            except ValueError:
+                print("  Please enter a valid number (e.g. 3.5).")
+
+        if rating < 2.5:
+            gave_remarks = ask_yn("Did the evaluator provide remarks? (y/n): ")
+
+    return {
+        "employee_id":            employee_id,
+        "is_first_submission":    first,
+        "performance_rating":     rating,
+        "evaluator_gave_remarks": gave_remarks,
+    }
+
+
+def ask_leave_inputs(employee_id):
+    """Collect leave application inputs interactively. Returns an application dict."""
+    # --- Leave type ---
     print()
-    print("  ╔" + "═" * _W + "╗")
-    label = f"  SCENARIO: {text}"
-    print("  ║" + label.ljust(_W) + "║")
-    print("  ╚" + "═" * _W + "╝")
+    print("Leave Types:")
+    for i, (_, label) in enumerate(_LEAVE_TYPES, 1):
+        print(f"  [{i}] {label}")
 
-def layer_banner(n, name):
-    print()
-    tag = f"  [ LAYER {n} — {name} ]"
-    print(tag)
-    _hline()
+    while True:
+        try:
+            choice = int(input("\nEnter leave type number (1-8): ").strip())
+            if 1 <= choice <= 8:
+                leave_type, _ = _LEAVE_TYPES[choice - 1]
+                break
+            print("  Please enter a number between 1 and 8.")
+        except ValueError:
+            print("  Please enter a valid number.")
 
-def pause():
-    input("\n  Press Enter to continue...\n")
+    # --- Days requested ---
+    while True:
+        try:
+            days = int(input("Days requested: ").strip())
+            if days >= 1:
+                break
+            print("  Must request at least 1 day.")
+        except ValueError:
+            print("  Please enter a whole number.")
 
+    # --- Remaining balance ---
+    while True:
+        try:
+            balance = int(input("Remaining leave balance: ").strip())
+            if balance >= 0:
+                break
+            print("  Balance cannot be negative.")
+        except ValueError:
+            print("  Please enter a whole number.")
 
-# =============================================================================
-# SECTION C — IPCR Scenarios
-# =============================================================================
+    # --- Start date ---
+    default_str = _DEFAULT_START.strftime("%Y-%m-%d")
+    raw = input(f"Start date (YYYY-MM-DD) [default: {default_str}]: ").strip()
+    if raw == "":
+        start_date = _DEFAULT_START
+    else:
+        while True:
+            try:
+                start_date = date.fromisoformat(raw)
+                break
+            except ValueError:
+                raw = input("  Invalid date. Enter YYYY-MM-DD: ").strip()
+                if raw == "":
+                    start_date = _DEFAULT_START
+                    break
 
-IPCR_SCENARIOS = [
-    {
-        "label":       "A — Fresh Submission",
-        "description": "Patricia Garcia submits her IPCR for the first time. No rating yet.",
-        "form": {
-            "employee_id":            "EMP-005",
-            "is_first_submission":    True,
-            "performance_rating":     None,
-            "evaluator_gave_remarks": False,
-        },
-    },
-    {
-        "label":       "B — Returning Form, Passing Rating (3.5)",
-        "description": "Patricia Garcia's form returns with a passing rating of 3.5.",
-        "form": {
-            "employee_id":            "EMP-005",
-            "is_first_submission":    False,
-            "performance_rating":     3.5,
-            "evaluator_gave_remarks": False,
-        },
-    },
-    {
-        "label":       "C — Failing Rating (1.8), No Remarks",
-        "description": "Daniel Ramos received a failing rating. Evaluator has not added remarks yet.",
-        "form": {
-            "employee_id":            "EMP-008",
-            "is_first_submission":    False,
-            "performance_rating":     1.8,
-            "evaluator_gave_remarks": False,
-        },
-    },
-    {
-        "label":       "D — Failing Rating (1.8), With Remarks",
-        "description": "Daniel Ramos — same failing rating, evaluator has now added remarks.",
-        "form": {
-            "employee_id":            "EMP-008",
-            "is_first_submission":    False,
-            "performance_rating":     1.8,
-            "evaluator_gave_remarks": True,
-        },
-    },
-    {
-        "label":       "E — Compliance Fail: Unknown Employee",
-        "description": "A form submitted with an employee ID that does not exist in the system.",
-        "form": {
-            "employee_id":            "EMP-999",
-            "is_first_submission":    True,
-            "performance_rating":     None,
-            "evaluator_gave_remarks": False,
-        },
-    },
-]
+    # --- Attachment (conditional) ---
+    attachment_fields = {
+        "has_medical_certificate":   False,
+        "has_solo_parent_id":        False,
+        "has_written_justification": False,
+        "has_wellness_certificate":  False,
+    }
+    if leave_type in _ATTACHMENTS:
+        field_key, cert_name = _ATTACHMENTS[leave_type]
+        has_cert = ask_yn(f"Do you have the required {cert_name}? (y/n): ")
+        attachment_fields[field_key] = has_cert
 
-
-# =============================================================================
-# SECTION D — Leave Scenarios
-# =============================================================================
-
-LEAVE_SCENARIOS = [
-    {
-        "label":       "A — Fresh Vacation Leave",
-        "description": "Patricia Garcia files vacation leave. No decisions yet.",
-        "application": {
-            "employee_id":               "EMP-005",
-            "leave_type":                "vacation_leave",
-            "days_requested":            3,
-            "days_remaining_balance":    10,
-            "start_date":                _FUTURE,
-            "has_medical_certificate":   False,
-            "has_solo_parent_id":        False,
-            "has_written_justification": False,
-            "has_wellness_certificate":  False,
-            "dh_decision":               0,
-            "hr_decision":               0,
-            "has_rejection_reason":      0,
-        },
-    },
-    {
-        "label":       "B — Department Head Approved",
-        "description": "Department Head approved. Application forwarded to HR Officer.",
-        "application": {
-            "employee_id":               "EMP-005",
-            "leave_type":                "vacation_leave",
-            "days_requested":            3,
-            "days_remaining_balance":    10,
-            "start_date":                _FUTURE,
-            "has_medical_certificate":   False,
-            "has_solo_parent_id":        False,
-            "has_written_justification": False,
-            "has_wellness_certificate":  False,
-            "dh_decision":               1,
-            "hr_decision":               0,
-            "has_rejection_reason":      0,
-        },
-    },
-    {
-        "label":       "C — HR Officer Approved",
-        "description": "HR Officer approved. Application complete. Leave credits deducted.",
-        "application": {
-            "employee_id":               "EMP-005",
-            "leave_type":                "vacation_leave",
-            "days_requested":            3,
-            "days_remaining_balance":    10,
-            "start_date":                _FUTURE,
-            "has_medical_certificate":   False,
-            "has_solo_parent_id":        False,
-            "has_written_justification": False,
-            "has_wellness_certificate":  False,
-            "dh_decision":               1,
-            "hr_decision":               1,
-            "has_rejection_reason":      0,
-        },
-    },
-    {
-        "label":       "D — DH Rejected, No Reason Recorded",
-        "description": "Daniel Ramos' leave was rejected by the Department Head. No reason yet.",
-        "application": {
-            "employee_id":               "EMP-008",
-            "leave_type":                "vacation_leave",
-            "days_requested":            2,
-            "days_remaining_balance":    10,
-            "start_date":                _FUTURE,
-            "has_medical_certificate":   False,
-            "has_solo_parent_id":        False,
-            "has_written_justification": False,
-            "has_wellness_certificate":  False,
-            "dh_decision":               2,
-            "hr_decision":               0,
-            "has_rejection_reason":      0,
-        },
-    },
-    {
-        "label":       "E — Compliance Fail: Sick Leave >3 Days, No Certificate",
-        "description": "Patricia Garcia files 5 days sick leave without a medical certificate.",
-        "application": {
-            "employee_id":               "EMP-005",
-            "leave_type":                "sick_leave",
-            "days_requested":            5,
-            "days_remaining_balance":    10,
-            "start_date":                _FUTURE,
-            "has_medical_certificate":   False,
-            "has_solo_parent_id":        False,
-            "has_written_justification": False,
-            "has_wellness_certificate":  False,
-            "dh_decision":               0,
-            "hr_decision":               0,
-            "has_rejection_reason":      0,
-        },
-    },
-]
+    return {
+        "employee_id":               employee_id,
+        "leave_type":                leave_type,
+        "days_requested":            days,
+        "days_remaining_balance":    balance,
+        "start_date":                start_date,
+        **attachment_fields,
+        # Fresh submission — decision state always starts at 0
+        "dh_decision":               0,
+        "hr_decision":               0,
+        "has_rejection_reason":      0,
+    }
 
 
 # =============================================================================
-# SECTION E — Demo runner functions
+# SECTION D — Result display
 # =============================================================================
 
-def _decision_label(d):
-    return {0: "Pending (0)", 1: "Approved (1)", 2: "Rejected (2)"}.get(d, str(d))
+def display_ipcr_result(form, result):
+    """Show the full two-layer pipeline output for an IPCR form."""
+    header("Form Submitted")
 
-
-def run_ipcr_scenario(s):
-    form = s["form"]
-
-    section_header(s["label"])
-    print(f"\n  {s['description']}")
-
-    # ── Input Form ──────────────────────────────────────────────────────────
-    box("Input Form — IPCR Evaluation", [
-        f"Employee ID           : {form['employee_id']}",
-        f"First Submission      : {'Yes' if form['is_first_submission'] else 'No'}",
-        f"Performance Rating    : {form['performance_rating'] if form['performance_rating'] is not None else 'None (not yet rated)'}",
-        f"Evaluator Gave Remarks: {'Yes' if form.get('evaluator_gave_remarks') else 'No'}",
-    ])
-    pause()
-
-    # ── Layer 1: Rule Engine ─────────────────────────────────────────────────
-    layer_banner(1, "Rule Engine — Rete Algorithm (Forward Chaining)")
+    # --- Layer 1: Rule Engine ---
+    step_header(1, "Rule Engine Check  (Rete Algorithm / Forward Chaining)")
     passed, reason, evaluator = router.rules.check_ipcr(form)
 
-    if passed:
-        print(f"  Result    : PASSED — Document is compliant")
-        print(f"  Evaluator : {evaluator['name']} ({evaluator['role']})")
-        print(f"  (Layer 2 will now classify the routing action)")
-    else:
-        print(f"  Result    : FAILED — Document rejected")
-        print(f"  Reason    : {reason}")
-        print(f"  (Layer 2 is NOT called — process ends here)")
-        result = router.route_ipcr(form)
-        box("Final Result — Rejected by Layer 1", [
-            f"Status          : {result.get('status')}",
-            f"Action          : {result.get('routing_action') or result.get('action')}",
-            f"Notification    : {result.get('notification')}",
-        ])
+    if not passed:
+        print(f"Result : FAILED")
+        print(f"Reason : {reason}")
+        print()
+        print(">>> Form returned. Layer 2 (Decision Tree) was NOT called.")
+        divider()
         return
-    pause()
 
-    # ── Layer 2: Decision Tree ───────────────────────────────────────────────
-    layer_banner(2, "Decision Tree — sklearn (Supervised Classification)")
+    print(f"Result    : PASSED")
+    print(f"Evaluator : {evaluator['name']} ({evaluator['role']})")
+
+    # --- Layer 2: Decision Tree ---
+    from org_and_rules import ROLE_ENCODING
     employee = EMPLOYEES[form["employee_id"]]
-    role_enc = ROLE_ENCODING[employee["role"]]
-    rating   = form["performance_rating"] if form["performance_rating"] is not None else 0.0
     features = {
-        "role_encoded":        role_enc,
-        "performance_rating":  rating,
+        "role_encoded":        ROLE_ENCODING[employee["role"]],
+        "performance_rating":  form["performance_rating"] if form["performance_rating"] is not None else 0.0,
         "is_first_submission": 1 if form["is_first_submission"] else 0,
     }
     dt = router.ipcr_dt.predict(features)
 
-    print(f"  Feature Vector:")
-    print(f"    role_encoded        = {features['role_encoded']}  ({employee['role']})")
-    print(f"    performance_rating  = {features['performance_rating']}")
-    print(f"    is_first_submission = {features['is_first_submission']}")
-    print()
-    print(f"  Predicted Class : {dt['routing_action_label']}")
-    print(f"  Confidence      : {dt['confidence_pct']}%")
-    pause()
+    step_header(2, "Decision Tree Prediction  (sklearn / Supervised Classification)")
+    print(f"Predicted Routing Action : {dt['routing_action_label']}")
+    print(f"Confidence               : {dt['confidence_pct']}%")
 
-    # ── Final Routing Decision ───────────────────────────────────────────────
-    result = router.route_ipcr(form)
+    # --- Routing Result ---
     action = result.get("routing_action") or result.get("action", "N/A")
-    lines  = [
-        f"Status          : {result.get('status')}",
-        f"Routing Action  : {action}",
-        f"Stage           : {result.get('stage')}",
-        f"Employee        : {result.get('employee_name', '—')}",
-    ]
+    print()
+    divider()
+    print("ROUTING RESULT")
+    divider()
+    print(f"Status         : {result.get('status', '').title()}")
+    print(f"Routing Action : {action}")
     if result.get("evaluator_name"):
-        lines.append(f"Evaluator       : {result['evaluator_name']} ({result.get('evaluator_role', '')})")
+        print(f"Routed to      : {result['evaluator_name']} ({result.get('evaluator_role', '')})")
     if result.get("rating") is not None:
-        lines.append(f"Rating          : {result['rating']}")
+        print(f"Rating         : {result['rating']}")
     if result.get("confidence_pct") is not None:
-        lines.append(f"DT Confidence   : {result['confidence_pct']}%")
-    lines.append(f"Notification    : {result.get('notification', result.get('reason', '—'))}")
-    box("Final Routing Decision", lines)
+        print(f"DT Confidence  : {result['confidence_pct']}%")
+    print(f"Notification   : {result.get('notification', result.get('reason', ''))}")
+    divider()
 
 
-def run_leave_scenario(s):
-    app = s["application"]
+def display_leave_result(application, result):
+    """Show the full two-layer pipeline output for a leave application."""
+    header("Form Submitted")
 
-    section_header(s["label"])
-    print(f"\n  {s['description']}")
+    # --- Layer 1: Rule Engine ---
+    step_header(1, "Rule Engine Check  (Rete Algorithm / Forward Chaining)")
+    passed, reason = router.rules.check_leave(application)
 
-    # ── Input Form ──────────────────────────────────────────────────────────
-    box("Input Form — Leave Application", [
-        f"Employee ID      : {app['employee_id']}",
-        f"Leave Type       : {app['leave_type'].replace('_', ' ').title()}",
-        f"Days Requested   : {app['days_requested']}",
-        f"Days Balance     : {app['days_remaining_balance']}",
-        f"Start Date       : {app['start_date']}",
-        f"DH Decision      : {_decision_label(app['dh_decision'])}",
-        f"HR Decision      : {_decision_label(app['hr_decision'])}",
-        f"Rejection Reason : {'Recorded' if app['has_rejection_reason'] else 'Not recorded'}",
-    ])
-    pause()
-
-    # ── Layer 1: Rule Engine ─────────────────────────────────────────────────
-    layer_banner(1, "Rule Engine — Rete Algorithm (Forward Chaining)")
-    passed, reason = router.rules.check_leave(app)
-
-    if passed:
-        print(f"  Result    : PASSED — Application is compliant")
-        print(f"  (Layer 2 will now classify the routing action)")
-    else:
-        print(f"  Result    : FAILED — Application rejected")
-        print(f"  Reason    : {reason}")
-        print(f"  (Layer 2 is NOT called — process ends here)")
-        result = router.route_leave(app)
-        box("Final Result — Rejected by Layer 1", [
-            f"Status          : {result.get('status')}",
-            f"Routing Action  : {result.get('routing_action')}",
-            f"Notification    : {result.get('notification', result.get('reason', '—'))}",
-        ])
+    if not passed:
+        print(f"Result : FAILED")
+        print(f"Reason : {reason}")
+        print()
+        print(">>> Application returned. Layer 2 (Decision Tree) was NOT called.")
+        divider()
         return
-    pause()
 
-    # ── Layer 2: Decision Tree ───────────────────────────────────────────────
-    layer_banner(2, "Decision Tree — sklearn (Supervised Classification)")
-    leave_type      = app["leave_type"]
+    print(f"Result : PASSED")
+
+    # --- Layer 2: Decision Tree ---
+    leave_type = application["leave_type"]
     attachment_types = ("sick_leave", "solo_parent_leave", "special_privilege_leave", "wellness_leave")
     has_att = (
-        (leave_type == "sick_leave"                and app.get("has_medical_certificate"))
-        or (leave_type == "solo_parent_leave"      and app.get("has_solo_parent_id"))
-        or (leave_type == "special_privilege_leave" and app.get("has_written_justification"))
-        or (leave_type == "wellness_leave"         and app.get("has_wellness_certificate"))
+        (leave_type == "sick_leave"                and application.get("has_medical_certificate"))
+        or (leave_type == "solo_parent_leave"      and application.get("has_solo_parent_id"))
+        or (leave_type == "special_privilege_leave" and application.get("has_written_justification"))
+        or (leave_type == "wellness_leave"         and application.get("has_wellness_certificate"))
         or leave_type not in attachment_types
     )
     features = {
         "leave_type_encoded":      LEAVE_TYPE_ENCODING[leave_type],
-        "days_requested":          app["days_requested"],
-        "days_balance":            app["days_remaining_balance"],
+        "days_requested":          application["days_requested"],
+        "days_balance":            application["days_remaining_balance"],
         "has_required_attachment": 1 if has_att else 0,
-        "dh_decision":             app["dh_decision"],
-        "hr_decision":             app["hr_decision"],
-        "has_rejection_reason":    app["has_rejection_reason"],
+        "dh_decision":             application["dh_decision"],
+        "hr_decision":             application["hr_decision"],
+        "has_rejection_reason":    application["has_rejection_reason"],
     }
     dt = router.leave_dt.predict(features)
 
-    print(f"  Feature Vector:")
-    print(f"    leave_type_encoded      = {features['leave_type_encoded']}  ({leave_type})")
-    print(f"    days_requested          = {features['days_requested']}")
-    print(f"    days_balance            = {features['days_balance']}")
-    print(f"    has_required_attachment = {features['has_required_attachment']}")
-    print(f"    dh_decision             = {features['dh_decision']}")
-    print(f"    hr_decision             = {features['hr_decision']}")
-    print(f"    has_rejection_reason    = {features['has_rejection_reason']}")
-    print()
-    print(f"  Predicted Class : {dt['routing_action_label']}")
-    print(f"  Confidence      : {dt['confidence_pct']}%")
-    pause()
+    step_header(2, "Decision Tree Prediction  (sklearn / Supervised Classification)")
+    print(f"Predicted Routing Action : {dt['routing_action_label']}")
+    print(f"Confidence               : {dt['confidence_pct']}%")
 
-    # ── Final Routing Decision ───────────────────────────────────────────────
-    result = router.route_leave(app)
-    lines  = [
-        f"Status          : {result.get('status')}",
-        f"Routing Action  : {result.get('routing_action')}",
-        f"Stage           : {result.get('stage')}",
-        f"Employee        : {result.get('employee_name', '—')}",
-    ]
+    # --- Routing Result ---
+    print()
+    divider()
+    print("ROUTING RESULT")
+    divider()
+    print(f"Status         : {result.get('status', '').title()}")
+    print(f"Routing Action : {result.get('routing_action', 'N/A')}")
     if result.get("approver_name"):
-        lines.append(f"Next Approver   : {result['approver_name']} ({result.get('approver_role', '')})")
-    lines.append(f"Notification    : {result.get('notification', result.get('reason', '—'))}")
-    box("Final Routing Decision", lines)
+        print(f"Next Approver  : {result['approver_name']} ({result.get('approver_role', '')})")
+    if result.get("confidence_pct") is not None:
+        print(f"DT Confidence  : {result['confidence_pct']}%")
+    print(f"Notification   : {result.get('notification', result.get('reason', ''))}")
+    divider()
 
 
 # =============================================================================
-# SECTION F — Menu functions
+# SECTION E — Run handlers
 # =============================================================================
 
-_IPCR_MENU = [
-    "[A]  Fresh Submission                   -> route_to_evaluator",
-    "[B]  Returning Form, Passing Rating     -> forward_to_hr",
-    "[C]  Failing Rating, No Remarks         -> route_back_to_evaluator",
-    "[D]  Failing Rating, With Remarks       -> save_data",
-    "[E]  Compliance Fail: Unknown Employee  -> returned (Layer 1)",
-    "",
-    "[0]  Back to Main Menu",
-]
-
-_LEAVE_MENU = [
-    "[A]  Fresh Vacation Leave               -> route_to_department_head",
-    "[B]  Department Head Approved           -> route_to_hr",
-    "[C]  HR Officer Approved               -> completed",
-    "[D]  DH Rejected, No Reason            -> require_rejection_reason",
-    "[E]  Compliance Fail: No Med. Cert.    -> returned (Layer 1)",
-    "",
-    "[0]  Back to Main Menu",
-]
-
-_IPCR_MAP  = {"A": 0, "B": 1, "C": 2, "D": 3, "E": 4}
-_LEAVE_MAP = {"A": 0, "B": 1, "C": 2, "D": 3, "E": 4}
+def run_ipcr(employee_id):
+    form   = ask_ipcr_inputs(employee_id)
+    result = router.route_ipcr(form)
+    display_ipcr_result(form, result)
 
 
-def ipcr_menu():
+def run_leave(employee_id):
+    application = ask_leave_inputs(employee_id)
+    result      = router.route_leave(application)
+    display_leave_result(application, result)
+
+
+# =============================================================================
+# SECTION F — Menus
+# =============================================================================
+
+def action_menu(employee_id, display_name):
+    """Action loop for a logged-in employee."""
+    employee = EMPLOYEES[employee_id]
+    print(f"\nWelcome, {display_name} ({employee['role']})")
+
     while True:
-        box("IPCR Evaluation Form — Demo Scenarios", _IPCR_MENU)
-        choice = input("\n  Select scenario: ").strip().upper()
-        if choice == "0":
+        print()
+        divider()
+        print("AVAILABLE ACTIONS")
+        divider()
+        print("  [1] Submit Evaluation Form (IPCR)")
+        print("  [2] Submit Leave Application")
+        print("  [3] Exit")
+        divider()
+
+        choice = input("Select action: ").strip()
+        if choice == "1":
+            run_ipcr(employee_id)
+        elif choice == "2":
+            run_leave(employee_id)
+        elif choice == "3":
+            print("\nGoodbye!\n")
             break
-        elif choice in _IPCR_MAP:
-            run_ipcr_scenario(IPCR_SCENARIOS[_IPCR_MAP[choice]])
         else:
-            print("  Invalid choice. Please enter A-E or 0.")
+            print("  Invalid choice. Please enter 1, 2, or 3.")
 
 
-def leave_menu():
-    while True:
-        box("Leave Application — Demo Scenarios", _LEAVE_MENU)
-        choice = input("\n  Select scenario: ").strip().upper()
-        if choice == "0":
-            break
-        elif choice in _LEAVE_MAP:
-            run_leave_scenario(LEAVE_SCENARIOS[_LEAVE_MAP[choice]])
-        else:
-            print("  Invalid choice. Please enter A-E or 0.")
-
-
-_MAIN_MENU = [
-    "SHRMS — Smart Human Resource Management System",
-    "Intelligent Workflow Routing (IWR)",
-    "Thesis Adviser Presentation Demo",
-    "",
-    "[1]  IPCR Evaluation Form Routing",
-    "[2]  Leave Application Routing",
-    "",
-    "[0]  Exit",
-]
-
-
-def main_menu():
+def main():
     print()
+    divider()
+    print("SHRMS — Smart Human Resource Management System")
+    print("Intelligent Workflow Routing (IWR)")
+    divider()
     print("  Loading models...", end=" ", flush=True)
     print("Ready.")
 
-    while True:
-        box("Main Menu", _MAIN_MENU)
-        choice = input("\n  Select: ").strip()
-        if choice == "0":
-            print("\n  Exiting demo. Good luck with your presentation!\n")
-            break
-        elif choice == "1":
-            ipcr_menu()
-        elif choice == "2":
-            leave_menu()
-        else:
-            print("  Invalid choice. Please enter 1, 2, or 0.")
+    employee_id  = ask_employee_id()
+    display_name = input("Enter your name: ").strip() or EMPLOYEES[employee_id]["name"]
+
+    action_menu(employee_id, display_name)
 
 
 # =============================================================================
@@ -473,4 +370,4 @@ def main_menu():
 # =============================================================================
 
 if __name__ == "__main__":
-    main_menu()
+    main()
