@@ -298,7 +298,7 @@ class WorkflowRouter:
             start_date                (date)  planned start date — used by Rule Engine
 
             # --- Attachments (for Rule Engine compliance check) ---
-            has_medical_certificate   (bool)  required: sick leave > 3 days
+            has_medical_certificate   (bool)  required: sick leave > 6 days
             has_solo_parent_id        (bool)  required: solo_parent_leave
             has_written_justification (bool)  required: special_privilege_leave
             has_wellness_certificate  (bool)  required: wellness_leave
@@ -342,7 +342,7 @@ class WorkflowRouter:
         #   Rule 4  — Vacation/sick leave cannot exceed remaining balance
         #   Rule 5  — Fixed-entitlement leaves cannot exceed annual cap
         #   Rule 6  — Vacation leave must be filed >= 5 days in advance
-        #   Rule 7  — Sick leave > 3 days requires a medical certificate
+        #   Rule 7  — Sick leave > 6 days requires a medical certificate
         #   Rule 8  — Solo Parent Leave requires a Solo Parent ID card
         #   Rule 9  — Special Privilege Leave requires written justification
         #   Rule 10 — Wellness Leave requires a wellness certificate

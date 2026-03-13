@@ -150,7 +150,7 @@ class RuleEngine:
         leave_rule     = LEAVE_RULES.get(leave_type, {})
         max_days       = leave_rule.get("max_days_per_year") or leave_rule.get("max_days", 999)
         min_notice     = leave_rule.get("min_days_advance_notice", 5)
-        cert_threshold = leave_rule.get("medical_cert_required_after", 3)
+        cert_threshold = leave_rule.get("medical_cert_required_after", 6)
 
         days_until_start = (start_date - date.today()).days if start_date else 0
 
@@ -172,7 +172,7 @@ class RuleEngine:
         needs_notice      = leave_type == "vacation_leave"
         notice_violated   = needs_notice and (days_until_start < min_notice)
 
-        # Rule 6: medical certificate (sick leave > 3 days)
+        # Rule 6: medical certificate (sick leave > 6 days)
         needs_cert        = leave_type == "sick_leave" and days_req > cert_threshold
         cert_missing      = needs_cert and not has_med_cert
 
@@ -307,9 +307,9 @@ class RuleEngine:
                     )
 
             # ------------------------------------------------------------------
-            # RULE 6 — Sick leave exceeding 3 days requires a medical certificate
+            # RULE 6 — Sick leave exceeding 6 days requires a medical certificate
             # Knowledge Base source: CSC Omnibus Rules
-            # IF leave_type == sick_leave AND days_requested > 3
+            # IF leave_type == sick_leave AND days_requested > 6
             # AND has_medical_certificate == False THEN fail
             #
             # Alpha node: cert_missing == True
@@ -625,9 +625,9 @@ if __name__ == "__main__":
           "days_requested": 3, "days_remaining_balance": 10, "start_date": past},
          False, "in advance"),
 
-        ("Rule 6 — Sick leave > 3 days, no cert",
+        ("Rule 6 — Sick leave > 6 days, no cert",
          {"employee_id": "EMP-005", "leave_type": "sick_leave",
-          "days_requested": 5, "days_remaining_balance": 10, "start_date": future,
+          "days_requested": 7, "days_remaining_balance": 10, "start_date": future,
           "has_medical_certificate": False},
          False, "medical certificate"),
 
@@ -654,12 +654,12 @@ if __name__ == "__main__":
           "days_requested": 3, "days_remaining_balance": 10, "start_date": future},
          True, "Compliant"),
 
-        ("Compliant — sick leave <= 3 days, no cert needed",
+        ("Compliant — sick leave <= 6 days, no cert needed",
          {"employee_id": "EMP-005", "leave_type": "sick_leave",
           "days_requested": 2, "days_remaining_balance": 10, "start_date": future},
          True, "Compliant"),
 
-        ("Compliant — sick leave > 3 days WITH cert",
+        ("Compliant — sick leave > 6 days WITH cert",
          {"employee_id": "EMP-005", "leave_type": "sick_leave",
           "days_requested": 5, "days_remaining_balance": 10, "start_date": future,
           "has_medical_certificate": True},

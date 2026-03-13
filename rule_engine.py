@@ -157,9 +157,9 @@ class RuleEngine:
                 )
 
         # ------------------------------------------------------------------
-        # RULE 6: Sick leave exceeding 3 days requires a medical certificate
+        # RULE 6: Sick leave exceeding 6 days requires a medical certificate
         # IF leave_type == sick_leave
-        # AND days_requested > 3
+        # AND days_requested > 6
         # AND has_medical_certificate == False THEN return
         # ------------------------------------------------------------------
         if leave_type == "sick_leave":

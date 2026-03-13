@@ -787,7 +787,7 @@ def run_leave_test(
 #   TC-LV-004 — Rule 4:  Vacation leave exceeds remaining balance
 #   TC-LV-005 — Rule 5a: Paternity leave exceeds annual cap (7 days)
 #   TC-LV-006 — Rule 5b: Vacation leave filed less than 5 days in advance
-#   TC-LV-007 — Rule 6:  Sick leave > 3 days without medical certificate
+#   TC-LV-007 — Rule 6:  Sick leave > 6 days without medical certificate
 #   TC-LV-008 — Rule 7:  Solo Parent Leave without Solo Parent ID
 #   TC-LV-009 — Rule 9:  Special Privilege Leave without written justification
 #   TC-LV-010 — Rule 10: Wellness Leave without wellness certificate
@@ -1034,7 +1034,7 @@ run_leave_test(
 #
 #   CLASS 0 — route_to_department_head
 #     TC-LV-011 — Vacation leave fresh application (EMP-005)
-#     TC-LV-012 — Sick leave <= 3 days, no cert needed (EMP-008)
+#     TC-LV-012 — Sick leave <= 6 days, no cert needed (EMP-008)
 #     TC-LV-013 — Maternity leave fresh (EMP-007)
 #     TC-LV-014 — Solo Parent Leave WITH ID (EMP-009)
 #     TC-LV-015 — Special Privilege WITH justification (EMP-010)
@@ -1042,7 +1042,7 @@ run_leave_test(
 #
 #   CLASS 1 — route_to_hr
 #     TC-LV-017 — Vacation leave DH approved (EMP-005)
-#     TC-LV-018 — Sick leave > 3 WITH cert, DH approved (EMP-005)
+#     TC-LV-018 — Sick leave > 6 WITH cert, DH approved (EMP-005)
 #     TC-LV-019 — Paternity leave DH approved (EMP-008)
 #
 #   CLASS 2 — require_rejection_reason
@@ -1229,7 +1229,7 @@ run_leave_test(
 )
 
 # TC-LV-018
-# Scenario : Sick leave > 3 days WITH cert, DH approved — forward to HR
+# Scenario : Sick leave > 6 days WITH cert, DH approved — forward to HR
 # DT Class : 1 — route_to_hr
 # Expected : Routed to HR Officer
 run_leave_test(
