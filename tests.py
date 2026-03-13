@@ -416,7 +416,7 @@ run_test(
 # classifies correctly at every point on the 1.0–5.0 scale.
 # Maps to workflow.png: "Employee Rating < 2.5?" decision diamond
 #
-#   PASSING ratings (>= 2.5) → forward_to_hr
+#   PASSING ratings (>= 2.5) → save_data
 #     TC-DT-010 — 5.0  (maximum possible)
 #     TC-DT-011 — 4.5  (high passing)
 #     TC-DT-012 — 3.5  (mid-range passing)

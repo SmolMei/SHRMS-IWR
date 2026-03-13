@@ -81,7 +81,7 @@ if __name__ == "__main__":
     ipcr_label_names = {
         0: "route_to_evaluator",
         1: "return_for_remarks",
-        2: "forward_to_hr",
+        2: "save_data",
     }
     print(f"  ✅ {len(ipcr_df)} records — "
           f"{ipcr_df['employee_id'].nunique()} employees (Department Head excluded)")
@@ -156,11 +156,11 @@ if __name__ == "__main__":
         },
         {
             "type":   "ipcr",
-            "desc":   "IPCR: Passing rating → forward to HR",
+            "desc":   "IPCR: Passing rating → save data",
             "form":   {"employee_id": "EMP-009", "is_first_submission": False,
                        "performance_rating": 4.0},
             "expect_status": "completed",
-            "expect_action": "forward_to_hr",
+            "expect_action": "save_data",
         },
         {
             "type":   "ipcr",

@@ -80,5 +80,5 @@ Generated/trained by `setup.py` via `training_data.py` and `decision_tree.py`. R
 ### Key constants (IPCR)
 - Rating scale: 1.0–5.0
 - Passing threshold: ≥ 2.5 (Satisfactory)
-- IPCR DT classes: `0=route_to_evaluator`, `1=return_for_remarks`, `2=forward_to_hr`
+- IPCR DT classes: `0=route_to_evaluator`, `1=return_for_remarks`, `2=save_data`
 - Leave DT classes: `0=route_to_department_head`, `1=route_to_hr`, `2=require_rejection_reason`, `3=completed`

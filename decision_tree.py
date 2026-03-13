@@ -68,7 +68,7 @@
 # THE THREE OUTPUT CLASSES (leaf nodes):
 #   0 → route_to_evaluator    (fresh form — send to assigned evaluator)
 #   1 → return_for_remarks    (rating < 2.5 — evaluator must add remarks)
-#   2 → forward_to_hr         (rating >= 2.5 — passed, send to HR)
+#   2 → save_data              (rating >= 2.5 — passed, save directly)
 # =============================================================================
 
 import os
@@ -104,7 +104,7 @@ class IPCRDecisionTree:
     Output classes (leaf nodes):
         0 → route_to_evaluator
         1 → return_for_remarks
-        2 → forward_to_hr
+        2 → save_data
 
     Overfitting prevention (four layers):
         1. max_depth=4          — structural pruning

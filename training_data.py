@@ -25,7 +25,7 @@
 #                Label: 0 = route_to_evaluator
 #
 #   Scenario B — Evaluator fills form, rating >= 2.5 (Passed)
-#                Label: 2 = forward_to_hr
+#                Label: 2 = save_data
 #
 #   Scenario C — Evaluator fills form, rating < 2.5 (Failed)
 #                Label: 1 = return_for_remarks
@@ -143,11 +143,11 @@ def generate_ipcr_data(samples_per_employee=100):
                 # Ensures the tree learns 2.5 is the passing threshold precisely
                 if i % 15 == 0:
                     rating = IPCR_PASSING_SCORE
-                    label  = 2   # forward_to_hr
+                    label  = 2   # save_data
 
                 elif rating >= IPCR_PASSING_SCORE:
                     # Scenario B: Passed
-                    label = 2   # forward_to_hr
+                    label = 2   # save_data
 
                 else:
                     # Scenario C: Failed — remarks required
@@ -305,7 +305,7 @@ def _print_ipcr_summary(df, path):
     label_names = {
         0: "route_to_evaluator  (Scenario A — fresh submission)",
         1: "return_for_remarks  (Scenario C — failed rating)",
-        2: "forward_to_hr       (Scenario B — passing rating)",
+        2: "save_data       (Scenario B — passing rating)",
     }
     print("IPCR Training Data Generated")
     print(f"  Saved to         : {path}")

@@ -268,7 +268,7 @@ LEAVE_DT_ACTIONS = {
 IPCR_DT_ACTIONS = {
     0: "route_to_evaluator",         # Fresh form → send to assigned evaluator
     1: "return_for_remarks",         # Rating < 2.5 → evaluator must add remarks
-    2: "forward_to_hr",              # Rating >= 2.5 → passed, send to HR
+    2: "save_data",                  # Rating >= 2.5 → passed, save directly
 }
 
 # Feature column names for the Leave Application Decision Tree
