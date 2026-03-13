@@ -247,13 +247,13 @@ run_test(
     description        = "Valid fresh submission — evaluator correctly assigned — Patricia Garcia (EMP-005)",
     flowchart_step     = "Check Employee ID → compliant → evaluator assigned → route to evaluator",
     form               = {
-        "employee_id":         "EMP-005",   # Patricia Garcia → supervisor is Maria Santos
+        "employee_id":         "EMP-005",   # Patricia Garcia → supervisor is John Reyes
         "is_first_submission": True,
         "performance_rating":  None,
     },
     expected_status    = "routed",
     expected_action    = "route_to_evaluator",
-    expected_evaluator = "Maria Santos",
+    expected_evaluator = "John Reyes",
 )
 
 
@@ -264,16 +264,13 @@ run_test(
 # Maps to workflow.png: "Route to assigned Evaluator (Supervisor)"
 #
 # Org chart coverage:
-#   Under Maria Santos (EMP-002)  — 3 subordinates
-#     TC-DT-001 — EMP-005 Patricia Garcia  → Maria Santos
-#     TC-DT-002 — EMP-006 Kevin Mendoza    → Maria Santos
-#     TC-DT-003 — EMP-007 Lorraine Flores  → Maria Santos
-#   Under Mark Bautista (EMP-003) — 2 subordinates
-#     TC-DT-004 — EMP-008 Daniel Ramos     → Mark Bautista
-#     TC-DT-005 — EMP-009 Camille Navarro  → Mark Bautista
-#   Under Angela Cruz (EMP-004)   — 1 subordinate
-#     TC-DT-006 — EMP-010 Joshua Aquino    → Angela Cruz
 #   Direct reports to John Reyes (EMP-001)
+#     TC-DT-001 — EMP-005 Patricia Garcia  → John Reyes
+#     TC-DT-002 — EMP-006 Kevin Mendoza    → John Reyes
+#     TC-DT-003 — EMP-007 Lorraine Flores  → John Reyes
+#     TC-DT-004 — EMP-008 Daniel Ramos     → John Reyes
+#     TC-DT-005 — EMP-009 Camille Navarro  → John Reyes
+#     TC-DT-006 — EMP-010 Joshua Aquino    → John Reyes
 #     TC-DT-007 — EMP-002 Maria Santos     → John Reyes
 #     TC-DT-008 — EMP-003 Mark Bautista    → John Reyes
 #     TC-DT-009 — EMP-004 Angela Cruz      → John Reyes
@@ -282,11 +279,11 @@ run_test(
 print("── BLOCK 2: Fresh Submission Tests — All 9 Eligible Employees ──")
 print()
 
-# ── Under Maria Santos (EMP-002) ──────────────────────────────────────────────
+# ── Direct reports to John Reyes (EMP-001) ────────────────────────────────────
 
 run_test(
     test_id            = "TC-DT-001",
-    description        = "Fresh submission — Patricia Garcia (EMP-005) → Maria Santos",
+    description        = "Fresh submission — Patricia Garcia (EMP-005) → John Reyes",
     flowchart_step     = "Route to assigned Evaluator (Supervisor)",
     form               = {
         "employee_id":         "EMP-005",
@@ -295,12 +292,12 @@ run_test(
     },
     expected_status    = "routed",
     expected_action    = "route_to_evaluator",
-    expected_evaluator = "Maria Santos",
+    expected_evaluator = "John Reyes",
 )
 
 run_test(
     test_id            = "TC-DT-002",
-    description        = "Fresh submission — Kevin Mendoza (EMP-006) → Maria Santos",
+    description        = "Fresh submission — Kevin Mendoza (EMP-006) → John Reyes",
     flowchart_step     = "Route to assigned Evaluator (Supervisor)",
     form               = {
         "employee_id":         "EMP-006",
@@ -309,12 +306,12 @@ run_test(
     },
     expected_status    = "routed",
     expected_action    = "route_to_evaluator",
-    expected_evaluator = "Maria Santos",
+    expected_evaluator = "John Reyes",
 )
 
 run_test(
     test_id            = "TC-DT-003",
-    description        = "Fresh submission — Lorraine Flores (EMP-007) → Maria Santos",
+    description        = "Fresh submission — Lorraine Flores (EMP-007) → John Reyes",
     flowchart_step     = "Route to assigned Evaluator (Supervisor)",
     form               = {
         "employee_id":         "EMP-007",
@@ -323,14 +320,12 @@ run_test(
     },
     expected_status    = "routed",
     expected_action    = "route_to_evaluator",
-    expected_evaluator = "Maria Santos",
+    expected_evaluator = "John Reyes",
 )
-
-# ── Under Mark Bautista (EMP-003) ─────────────────────────────────────────────
 
 run_test(
     test_id            = "TC-DT-004",
-    description        = "Fresh submission — Daniel Ramos (EMP-008) → Mark Bautista",
+    description        = "Fresh submission — Daniel Ramos (EMP-008) → John Reyes",
     flowchart_step     = "Route to assigned Evaluator (Supervisor)",
     form               = {
         "employee_id":         "EMP-008",
@@ -339,12 +334,12 @@ run_test(
     },
     expected_status    = "routed",
     expected_action    = "route_to_evaluator",
-    expected_evaluator = "Mark Bautista",
+    expected_evaluator = "John Reyes",
 )
 
 run_test(
     test_id            = "TC-DT-005",
-    description        = "Fresh submission — Camille Navarro (EMP-009) → Mark Bautista",
+    description        = "Fresh submission — Camille Navarro (EMP-009) → John Reyes",
     flowchart_step     = "Route to assigned Evaluator (Supervisor)",
     form               = {
         "employee_id":         "EMP-009",
@@ -353,14 +348,12 @@ run_test(
     },
     expected_status    = "routed",
     expected_action    = "route_to_evaluator",
-    expected_evaluator = "Mark Bautista",
+    expected_evaluator = "John Reyes",
 )
-
-# ── Under Angela Cruz (EMP-004) ───────────────────────────────────────────────
 
 run_test(
     test_id            = "TC-DT-006",
-    description        = "Fresh submission — Joshua Aquino (EMP-010) → Angela Cruz",
+    description        = "Fresh submission — Joshua Aquino (EMP-010) → John Reyes",
     flowchart_step     = "Route to assigned Evaluator (Supervisor)",
     form               = {
         "employee_id":         "EMP-010",
@@ -369,10 +362,10 @@ run_test(
     },
     expected_status    = "routed",
     expected_action    = "route_to_evaluator",
-    expected_evaluator = "Angela Cruz",
+    expected_evaluator = "John Reyes",
 )
 
-# ── Direct reports to John Reyes (EMP-001) ────────────────────────────────────
+# ── Also direct reports: Administrative Officers II ───────────────────────────
 
 run_test(
     test_id            = "TC-DT-007",
@@ -611,25 +604,23 @@ run_test(
 # and that the process completes correctly once remarks are provided.
 # Maps to workflow.png: "Gives Remarks? → No → Route back / Yes → Save Data"
 #
-#   TC-DT-020 — EMP-006 Kevin Mendoza   (under Maria Santos),  no remarks
-#   TC-DT-021 — EMP-006 Kevin Mendoza   (under Maria Santos),  with remarks
-#   TC-DT-022 — EMP-009 Camille Navarro (under Mark Bautista), no remarks
-#   TC-DT-023 — EMP-009 Camille Navarro (under Mark Bautista), with remarks
-#   TC-DT-024 — EMP-010 Joshua Aquino   (under Angela Cruz),   no remarks
-#   TC-DT-025 — EMP-010 Joshua Aquino   (under Angela Cruz),   with remarks
+#   TC-DT-020 — EMP-006 Kevin Mendoza   (direct report to John Reyes), no remarks
+#   TC-DT-021 — EMP-006 Kevin Mendoza   (direct report to John Reyes), with remarks
+#   TC-DT-022 — EMP-009 Camille Navarro (direct report to John Reyes), no remarks
+#   TC-DT-023 — EMP-009 Camille Navarro (direct report to John Reyes), with remarks
+#   TC-DT-024 — EMP-010 Joshua Aquino   (direct report to John Reyes), no remarks
+#   TC-DT-025 — EMP-010 Joshua Aquino   (direct report to John Reyes), with remarks
 # =============================================================================
 
 print("── BLOCK 4: Remarks Path Tests — All 3 Supervisor Groups ────")
 print()
 
-# ── Under Maria Santos (EMP-002) ──────────────────────────────────────────────
-
 # TC-DT-020
 # Failing rating, evaluator has NOT given remarks yet
-# Verifies form is held at waiting_for_remarks and routes back to Maria Santos
+# Verifies form is held at waiting_for_remarks and routes back to John Reyes
 run_test(
     test_id            = "TC-DT-020",
-    description        = "Failing 1.8, no remarks — Kevin Mendoza (EMP-006) → route back to Maria Santos",
+    description        = "Failing 1.8, no remarks — Kevin Mendoza (EMP-006) → route back to John Reyes",
     flowchart_step     = "Failed → Gives Remarks? → No → Route back to Evaluator",
     form               = {
         "employee_id":            "EMP-006",
@@ -639,7 +630,7 @@ run_test(
     },
     expected_status    = "routed",
     expected_action    = "route_back_to_evaluator",
-    expected_evaluator = "Maria Santos",
+    expected_evaluator = "John Reyes",
 )
 
 # TC-DT-021
@@ -659,14 +650,12 @@ run_test(
     expected_action = "save_data",
 )
 
-# ── Under Mark Bautista (EMP-003) ─────────────────────────────────────────────
-
 # TC-DT-022
 # Failing rating, evaluator has NOT given remarks yet
-# Verifies form routes back to Mark Bautista
+# Verifies form routes back to John Reyes
 run_test(
     test_id            = "TC-DT-022",
-    description        = "Failing 2.1, no remarks — Camille Navarro (EMP-009) → route back to Mark Bautista",
+    description        = "Failing 2.1, no remarks — Camille Navarro (EMP-009) → route back to John Reyes",
     flowchart_step     = "Failed → Gives Remarks? → No → Route back to Evaluator",
     form               = {
         "employee_id":            "EMP-009",
@@ -676,7 +665,7 @@ run_test(
     },
     expected_status    = "routed",
     expected_action    = "route_back_to_evaluator",
-    expected_evaluator = "Mark Bautista",
+    expected_evaluator = "John Reyes",
 )
 
 # TC-DT-023
@@ -695,14 +684,12 @@ run_test(
     expected_action = "save_data",
 )
 
-# ── Under Angela Cruz (EMP-004) ───────────────────────────────────────────────
-
 # TC-DT-024
 # Failing rating, evaluator has NOT given remarks yet
-# Verifies form routes back to Angela Cruz
+# Verifies form routes back to John Reyes
 run_test(
     test_id            = "TC-DT-024",
-    description        = "Failing 1.3, no remarks — Joshua Aquino (EMP-010) → route back to Angela Cruz",
+    description        = "Failing 1.3, no remarks — Joshua Aquino (EMP-010) → route back to John Reyes",
     flowchart_step     = "Failed → Gives Remarks? → No → Route back to Evaluator",
     form               = {
         "employee_id":            "EMP-010",
@@ -712,7 +699,7 @@ run_test(
     },
     expected_status    = "routed",
     expected_action    = "route_back_to_evaluator",
-    expected_evaluator = "Angela Cruz",
+    expected_evaluator = "John Reyes",
 )
 
 # TC-DT-025

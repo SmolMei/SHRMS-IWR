@@ -22,15 +22,26 @@
 #
 #    Hierarchy:
 #      John Reyes (Department Head)
-#        ├── Maria Santos (Administrative Officer II)
-#        │     ├── Patricia Garcia  (Administrative Aide I)
-#        │     ├── Kevin Mendoza    (Administrative Aide I)
-#        │     └── Lorraine Flores  (Administrative Aide I)
-#        ├── Mark Bautista (Administrative Officer II)
-#        │     ├── Daniel Ramos     (Administrative Aide I)
-#        │     └── Camille Navarro  (Administrative Aide I)
-#        └── Angela Cruz (Administrative Officer II)
-#              └── Joshua Aquino    (Administrative Aide I)
+#        ├── Maria Santos     (Administrative Officer II)
+#        ├── Mark Bautista    (Administrative Officer II)
+#        ├── Angela Cruz      (Administrative Officer II)
+#        ├── Patricia Garcia  (Administrative Aide I)
+#        ├── Kevin Mendoza    (Administrative Aide I)
+#        ├── Lorraine Flores  (Administrative Aide I)
+#        ├── Daniel Ramos     (Administrative Aide I)
+#        ├── Camille Navarro  (Administrative Aide I)
+#        ├── Joshua Aquino    (Administrative Aide I)
+#        ├── Ana Dela Cruz    (Administrative Aide I)
+#        ├── Ramon Villanueva (Administrative Aide I)
+#        ├── Josephine Pascual(Administrative Aide I)
+#        ├── Michael Torres   (Administrative Aide I)
+#        ├── Liza Castillo    (Administrative Aide I)
+#        ├── Roberto Jimenez  (Administrative Aide I)
+#        ├── Christine Morales(Administrative Aide I)
+#        ├── Ferdinand Aguilar(Administrative Aide I)
+#        ├── Maricel Dela Rosa(Administrative Aide I)
+#        ├── Benedict Mercado (Administrative Aide I)
+#        └── Theresa Evangelista (Administrative Aide I)
 #
 #    Each entry has:
 #      "name"          — employee full name
@@ -73,43 +84,95 @@ EMPLOYEES = {
         "supervisor_id": "EMP-001",   # Reports to John Reyes
     },
 
-    # --- Administrative Aides I under Maria Santos ---
+    # --- Administrative Aides I (all report directly to John Reyes) ---
 
     "EMP-005": {
         "name":          "Patricia Garcia",
         "role":          "Administrative Aide I",
-        "supervisor_id": "EMP-002",   # Reports to Maria Santos
+        "supervisor_id": "EMP-001",   # Reports to John Reyes
     },
     "EMP-006": {
         "name":          "Kevin Mendoza",
         "role":          "Administrative Aide I",
-        "supervisor_id": "EMP-002",   # Reports to Maria Santos
+        "supervisor_id": "EMP-001",   # Reports to John Reyes
     },
     "EMP-007": {
         "name":          "Lorraine Flores",
         "role":          "Administrative Aide I",
-        "supervisor_id": "EMP-002",   # Reports to Maria Santos
+        "supervisor_id": "EMP-001",   # Reports to John Reyes
     },
-
-    # --- Administrative Aides I under Mark Bautista ---
-
     "EMP-008": {
         "name":          "Daniel Ramos",
         "role":          "Administrative Aide I",
-        "supervisor_id": "EMP-003",   # Reports to Mark Bautista
+        "supervisor_id": "EMP-001",   # Reports to John Reyes
     },
     "EMP-009": {
         "name":          "Camille Navarro",
         "role":          "Administrative Aide I",
-        "supervisor_id": "EMP-003",   # Reports to Mark Bautista
+        "supervisor_id": "EMP-001",   # Reports to John Reyes
     },
-
-    # --- Administrative Aide I under Angela Cruz ---
-
     "EMP-010": {
         "name":          "Joshua Aquino",
         "role":          "Administrative Aide I",
-        "supervisor_id": "EMP-004",   # Reports to Angela Cruz
+        "supervisor_id": "EMP-001",   # Reports to John Reyes
+    },
+
+    # --- Additional Administrative Aides I (all report directly to John Reyes) ---
+
+    "EMP-011": {
+        "name":          "Ana Dela Cruz",
+        "role":          "Administrative Aide I",
+        "supervisor_id": "EMP-001",   # Reports to John Reyes
+    },
+    "EMP-012": {
+        "name":          "Ramon Villanueva",
+        "role":          "Administrative Aide I",
+        "supervisor_id": "EMP-001",   # Reports to John Reyes
+    },
+    "EMP-013": {
+        "name":          "Josephine Pascual",
+        "role":          "Administrative Aide I",
+        "supervisor_id": "EMP-001",   # Reports to John Reyes
+    },
+    "EMP-014": {
+        "name":          "Michael Torres",
+        "role":          "Administrative Aide I",
+        "supervisor_id": "EMP-001",   # Reports to John Reyes
+    },
+    "EMP-015": {
+        "name":          "Liza Castillo",
+        "role":          "Administrative Aide I",
+        "supervisor_id": "EMP-001",   # Reports to John Reyes
+    },
+    "EMP-016": {
+        "name":          "Roberto Jimenez",
+        "role":          "Administrative Aide I",
+        "supervisor_id": "EMP-001",   # Reports to John Reyes
+    },
+    "EMP-017": {
+        "name":          "Christine Morales",
+        "role":          "Administrative Aide I",
+        "supervisor_id": "EMP-001",   # Reports to John Reyes
+    },
+    "EMP-018": {
+        "name":          "Ferdinand Aguilar",
+        "role":          "Administrative Aide I",
+        "supervisor_id": "EMP-001",   # Reports to John Reyes
+    },
+    "EMP-019": {
+        "name":          "Maricel Dela Rosa",
+        "role":          "Administrative Aide I",
+        "supervisor_id": "EMP-001",   # Reports to John Reyes
+    },
+    "EMP-020": {
+        "name":          "Benedict Mercado",
+        "role":          "Administrative Aide I",
+        "supervisor_id": "EMP-001",   # Reports to John Reyes
+    },
+    "EMP-021": {
+        "name":          "Theresa Evangelista",
+        "role":          "Administrative Aide I",
+        "supervisor_id": "EMP-001",   # Reports to John Reyes
     },
 }
 
