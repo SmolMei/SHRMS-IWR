@@ -32,8 +32,8 @@
 # TEST BLOCKS:
 #   ── IPCR Evaluation Path ──────────────────────────────────────────
 #   BLOCK 1 — Rule Engine Tests          (TC-RE-001 to TC-RE-006)   6 cases
-#   BLOCK 2 — Fresh Submission Tests     (TC-DT-001 to TC-DT-009)   9 cases
-#             All 9 eligible employees covered (Dept Head excluded)
+#   BLOCK 2 — Fresh Submission Tests     (TC-DT-001 to TC-DT-036)  20 cases
+#             All 20 eligible employees covered (Dept Head excluded)
 #   BLOCK 3 — Boundary and Rating Scale  (TC-DT-010 to TC-DT-019)  10 cases
 #             Full 1.0–5.0 scale + all critical boundary points
 #   BLOCK 4 — Remarks Path Tests         (TC-DT-020 to TC-DT-025)   6 cases
@@ -45,7 +45,7 @@
 #   BLOCK 6 — Leave DT Routing Tests     (TC-LV-011 to TC-LV-025)  15 cases
 #             All 4 routing classes, all leave types, multiple employees
 #
-#   TOTAL: 56 test cases
+#   TOTAL: 71 test cases
 #
 # HOW TO RUN:
 #   python tests.py
@@ -258,25 +258,36 @@ run_test(
 
 
 # =============================================================================
-# BLOCK 2: FRESH SUBMISSION TESTS — ALL 9 ELIGIBLE EMPLOYEES
+# BLOCK 2: FRESH SUBMISSION TESTS — ALL 20 ELIGIBLE EMPLOYEES
 # Tests that every employee (except the Department Head) is correctly
 # routed to their assigned evaluator on a fresh form submission.
 # Maps to workflow.png: "Route to assigned Evaluator (Supervisor)"
 #
 # Org chart coverage:
 #   Direct reports to John Reyes (EMP-001)
-#     TC-DT-001 — EMP-005 Patricia Garcia  → John Reyes
-#     TC-DT-002 — EMP-006 Kevin Mendoza    → John Reyes
-#     TC-DT-003 — EMP-007 Lorraine Flores  → John Reyes
-#     TC-DT-004 — EMP-008 Daniel Ramos     → John Reyes
-#     TC-DT-005 — EMP-009 Camille Navarro  → John Reyes
-#     TC-DT-006 — EMP-010 Joshua Aquino    → John Reyes
-#     TC-DT-007 — EMP-002 Maria Santos     → John Reyes
-#     TC-DT-008 — EMP-003 Mark Bautista    → John Reyes
-#     TC-DT-009 — EMP-004 Angela Cruz      → John Reyes
+#     TC-DT-001 — EMP-005 Patricia Garcia     → John Reyes
+#     TC-DT-002 — EMP-006 Kevin Mendoza       → John Reyes
+#     TC-DT-003 — EMP-007 Lorraine Flores     → John Reyes
+#     TC-DT-004 — EMP-008 Daniel Ramos        → John Reyes
+#     TC-DT-005 — EMP-009 Camille Navarro     → John Reyes
+#     TC-DT-006 — EMP-010 Joshua Aquino       → John Reyes
+#     TC-DT-007 — EMP-002 Maria Santos        → John Reyes
+#     TC-DT-008 — EMP-003 Mark Bautista       → John Reyes
+#     TC-DT-009 — EMP-004 Angela Cruz         → John Reyes
+#     TC-DT-026 — EMP-011 Ana Dela Cruz       → John Reyes
+#     TC-DT-027 — EMP-012 Ramon Villanueva    → John Reyes
+#     TC-DT-028 — EMP-013 Josephine Pascual   → John Reyes
+#     TC-DT-029 — EMP-014 Michael Torres      → John Reyes
+#     TC-DT-030 — EMP-015 Liza Castillo       → John Reyes
+#     TC-DT-031 — EMP-016 Roberto Jimenez     → John Reyes
+#     TC-DT-032 — EMP-017 Christine Morales   → John Reyes
+#     TC-DT-033 — EMP-018 Ferdinand Aguilar   → John Reyes
+#     TC-DT-034 — EMP-019 Maricel Dela Rosa   → John Reyes
+#     TC-DT-035 — EMP-020 Benedict Mercado    → John Reyes
+#     TC-DT-036 — EMP-021 Theresa Evangelista → John Reyes
 # =============================================================================
 
-print("── BLOCK 2: Fresh Submission Tests — All 9 Eligible Employees ──")
+print("── BLOCK 2: Fresh Submission Tests — All 20 Eligible Employees ─")
 print()
 
 # ── Direct reports to John Reyes (EMP-001) ────────────────────────────────────
@@ -401,6 +412,160 @@ run_test(
     flowchart_step     = "Route to assigned Evaluator (Supervisor)",
     form               = {
         "employee_id":         "EMP-004",
+        "is_first_submission": True,
+        "performance_rating":  None,
+    },
+    expected_status    = "routed",
+    expected_action    = "route_to_evaluator",
+    expected_evaluator = "John Reyes",
+)
+
+run_test(
+    test_id            = "TC-DT-026",
+    description        = "Fresh submission — Ana Dela Cruz (EMP-011) → John Reyes",
+    flowchart_step     = "Route to assigned Evaluator (Supervisor)",
+    form               = {
+        "employee_id":         "EMP-011",
+        "is_first_submission": True,
+        "performance_rating":  None,
+    },
+    expected_status    = "routed",
+    expected_action    = "route_to_evaluator",
+    expected_evaluator = "John Reyes",
+)
+
+run_test(
+    test_id            = "TC-DT-027",
+    description        = "Fresh submission — Ramon Villanueva (EMP-012) → John Reyes",
+    flowchart_step     = "Route to assigned Evaluator (Supervisor)",
+    form               = {
+        "employee_id":         "EMP-012",
+        "is_first_submission": True,
+        "performance_rating":  None,
+    },
+    expected_status    = "routed",
+    expected_action    = "route_to_evaluator",
+    expected_evaluator = "John Reyes",
+)
+
+run_test(
+    test_id            = "TC-DT-028",
+    description        = "Fresh submission — Josephine Pascual (EMP-013) → John Reyes",
+    flowchart_step     = "Route to assigned Evaluator (Supervisor)",
+    form               = {
+        "employee_id":         "EMP-013",
+        "is_first_submission": True,
+        "performance_rating":  None,
+    },
+    expected_status    = "routed",
+    expected_action    = "route_to_evaluator",
+    expected_evaluator = "John Reyes",
+)
+
+run_test(
+    test_id            = "TC-DT-029",
+    description        = "Fresh submission — Michael Torres (EMP-014) → John Reyes",
+    flowchart_step     = "Route to assigned Evaluator (Supervisor)",
+    form               = {
+        "employee_id":         "EMP-014",
+        "is_first_submission": True,
+        "performance_rating":  None,
+    },
+    expected_status    = "routed",
+    expected_action    = "route_to_evaluator",
+    expected_evaluator = "John Reyes",
+)
+
+run_test(
+    test_id            = "TC-DT-030",
+    description        = "Fresh submission — Liza Castillo (EMP-015) → John Reyes",
+    flowchart_step     = "Route to assigned Evaluator (Supervisor)",
+    form               = {
+        "employee_id":         "EMP-015",
+        "is_first_submission": True,
+        "performance_rating":  None,
+    },
+    expected_status    = "routed",
+    expected_action    = "route_to_evaluator",
+    expected_evaluator = "John Reyes",
+)
+
+run_test(
+    test_id            = "TC-DT-031",
+    description        = "Fresh submission — Roberto Jimenez (EMP-016) → John Reyes",
+    flowchart_step     = "Route to assigned Evaluator (Supervisor)",
+    form               = {
+        "employee_id":         "EMP-016",
+        "is_first_submission": True,
+        "performance_rating":  None,
+    },
+    expected_status    = "routed",
+    expected_action    = "route_to_evaluator",
+    expected_evaluator = "John Reyes",
+)
+
+run_test(
+    test_id            = "TC-DT-032",
+    description        = "Fresh submission — Christine Morales (EMP-017) → John Reyes",
+    flowchart_step     = "Route to assigned Evaluator (Supervisor)",
+    form               = {
+        "employee_id":         "EMP-017",
+        "is_first_submission": True,
+        "performance_rating":  None,
+    },
+    expected_status    = "routed",
+    expected_action    = "route_to_evaluator",
+    expected_evaluator = "John Reyes",
+)
+
+run_test(
+    test_id            = "TC-DT-033",
+    description        = "Fresh submission — Ferdinand Aguilar (EMP-018) → John Reyes",
+    flowchart_step     = "Route to assigned Evaluator (Supervisor)",
+    form               = {
+        "employee_id":         "EMP-018",
+        "is_first_submission": True,
+        "performance_rating":  None,
+    },
+    expected_status    = "routed",
+    expected_action    = "route_to_evaluator",
+    expected_evaluator = "John Reyes",
+)
+
+run_test(
+    test_id            = "TC-DT-034",
+    description        = "Fresh submission — Maricel Dela Rosa (EMP-019) → John Reyes",
+    flowchart_step     = "Route to assigned Evaluator (Supervisor)",
+    form               = {
+        "employee_id":         "EMP-019",
+        "is_first_submission": True,
+        "performance_rating":  None,
+    },
+    expected_status    = "routed",
+    expected_action    = "route_to_evaluator",
+    expected_evaluator = "John Reyes",
+)
+
+run_test(
+    test_id            = "TC-DT-035",
+    description        = "Fresh submission — Benedict Mercado (EMP-020) → John Reyes",
+    flowchart_step     = "Route to assigned Evaluator (Supervisor)",
+    form               = {
+        "employee_id":         "EMP-020",
+        "is_first_submission": True,
+        "performance_rating":  None,
+    },
+    expected_status    = "routed",
+    expected_action    = "route_to_evaluator",
+    expected_evaluator = "John Reyes",
+)
+
+run_test(
+    test_id            = "TC-DT-036",
+    description        = "Fresh submission — Theresa Evangelista (EMP-021) → John Reyes",
+    flowchart_step     = "Route to assigned Evaluator (Supervisor)",
+    form               = {
+        "employee_id":         "EMP-021",
         "is_first_submission": True,
         "performance_rating":  None,
     },
@@ -1524,7 +1689,7 @@ if failed == 0:
     print("  Coverage summary:")
     print("    ── IPCR Evaluation Path ──────────────────────────────────")
     print("    BLOCK 1 — Rule Engine       :  6 cases  (TC-RE-001 to TC-RE-006)")
-    print("    BLOCK 2 — Fresh Submissions :  9 cases  (TC-DT-001 to TC-DT-009)")
+    print("    BLOCK 2 — Fresh Submissions : 20 cases  (TC-DT-001 to TC-DT-036)")
     print("    BLOCK 3 — Boundary/Scale    : 10 cases  (TC-DT-010 to TC-DT-019)")
     print("    BLOCK 4 — Remarks Path      :  6 cases  (TC-DT-020 to TC-DT-025)")
     print()
@@ -1533,7 +1698,7 @@ if failed == 0:
     print("    BLOCK 6 — Leave DT Routing  : 15 cases  (TC-LV-011 to TC-LV-025)")
     print("    BLOCK 7 — DH as Applicant   :  4 cases  (TC-LV-026 to TC-LV-029)")
     print()
-    print("  IPCR: All 9 eligible employees covered for fresh submission.")
+    print("  IPCR: All 20 eligible employees covered for fresh submission.")
     print("  IPCR: Full rating scale: 1.0, 1.5, 2.0, 2.49, 2.5, 2.51, 3.0, 3.5, 4.5, 5.0")
     print("  IPCR: All 3 supervisor groups covered for remarks path.")
     print()
