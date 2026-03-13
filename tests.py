@@ -935,17 +935,17 @@ run_leave_test(
 )
 
 # TC-LV-007
-# Scenario : Sick leave of 5 days submitted without a medical certificate
-# Rule     : Rule 6 — Sick leave exceeding 3 days requires medical certificate
+# Scenario : Sick leave of 7 days submitted without a medical certificate
+# Rule     : Rule 6 — Sick leave exceeding 6 days requires medical certificate
 # Expected : Application returned — certificate missing
 run_leave_test(
     test_id         = "TC-LV-007",
-    description     = "Sick leave 5 days without medical certificate — Joshua Aquino (EMP-010)",
-    flowchart_step  = "Compliance Check → sick_leave > 3 days AND no cert → Return",
+    description     = "Sick leave 7 days without medical certificate — Joshua Aquino (EMP-010)",
+    flowchart_step  = "Compliance Check → sick_leave > 6 days AND no cert → Return",
     application     = {
         "employee_id":              "EMP-010",
         "leave_type":               "sick_leave",
-        "days_requested":           5,
+        "days_requested":           7,
         "days_remaining_balance":   10,
         "start_date":               _future,
         "has_medical_certificate":  False,

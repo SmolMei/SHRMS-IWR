@@ -163,7 +163,7 @@ class RuleEngine:
         # AND has_medical_certificate == False THEN return
         # ------------------------------------------------------------------
         if leave_type == "sick_leave":
-            cert_threshold = rule["medical_cert_required_after"]   # 3 days
+            cert_threshold = rule["medical_cert_required_after"]   # 6 days
             has_cert = application.get("has_medical_certificate", False)
 
             if days_req > cert_threshold and not has_cert:

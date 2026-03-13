@@ -194,7 +194,7 @@ LEAVE_RULES = {
 
     "sick_leave": {
         "max_days_per_year":           15,
-        "medical_cert_required_after": 3,  # Medical cert needed if sick leave exceeds 3 days
+        "medical_cert_required_after": 6,  # Medical cert needed if sick leave exceeds 6 days
     },
 
     "maternity_leave": {
