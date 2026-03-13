@@ -198,11 +198,14 @@ LEAVE_RULES = {
     },
 
     "maternity_leave": {
-        "max_days": 105,
+        "max_days":               105,
+        "min_days_advance_notice": 30,  # Must file at least 30 days before expected delivery
     },
 
     "paternity_leave": {
-        "max_days": 7,
+        "max_days":                    7,
+        "min_days_advance_notice":     30,   # Must file at least 30 days before expected delivery
+        "requires_marriage_certificate": True,  # Marriage Certificate must be attached
     },
 
     "solo_parent_leave": {
@@ -211,18 +214,24 @@ LEAVE_RULES = {
     },
 
     "force_leave": {
-        "max_days_per_year":      5,            # Mandatory leave ordered by the agency head
-        "admin_initiated":        True,         # Filed by HR/management, not the employee
+        "max_days_per_year":      5,            # Uses vacation leave credits
+        "min_days_advance_notice": 5,           # Must file at least 5 days before start date
     },
 
     "special_privilege_leave": {
         "max_days_per_year":      3,            # CSC MC No. 6 s. 1996 — birthday, graduation, etc.
-        "requires_justification": True,         # Employee must state the specific occasion
+        "min_days_advance_notice": 5,           # Must file at least 5 days before start date
     },
 
     "wellness_leave": {
         "max_days_per_year":      5,            # Agency wellness program — mental health / medical
-        "requires_wellness_cert": True,         # Certificate from agency wellness officer required
+        "min_days_advance_notice": 5,           # Must file at least 5 days before start date
+    },
+
+    "special_sick_leave_for_women": {
+        "max_days":                    90,      # 3 months fixed entitlement
+        "min_days_advance_notice":      5,      # Must file at least 5 days before start date
+        "requires_medical_certificate": True,   # Medical certificate always required
     },
 
 }
@@ -266,14 +275,15 @@ IPCR_EVALUATOR_ID = None
 
 # Maps leave type text → integer
 LEAVE_TYPE_ENCODING = {
-    "vacation_leave":          0,
-    "sick_leave":              1,
-    "maternity_leave":         2,
-    "paternity_leave":         3,
-    "solo_parent_leave":       4,
-    "force_leave":             5,
-    "special_privilege_leave": 6,
-    "wellness_leave":          7,
+    "vacation_leave":               0,
+    "sick_leave":                   1,
+    "maternity_leave":              2,
+    "paternity_leave":              3,
+    "solo_parent_leave":            4,
+    "force_leave":                  5,
+    "special_privilege_leave":      6,
+    "wellness_leave":               7,
+    "special_sick_leave_for_women": 8,
 }
 
 # Maps employee role text → integer

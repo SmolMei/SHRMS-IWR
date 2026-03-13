@@ -112,12 +112,13 @@ class RuleEngine:
             return False, "Days requested must be at least 1."
 
         # ------------------------------------------------------------------
-        # RULE 4: Vacation and sick leave cannot exceed remaining balance
+        # RULE 4: Vacation, sick, and force leave cannot exceed remaining balance
         # Source: CSC Omnibus Rules — leave credit system
-        # IF leave_type in (vacation, sick)
+        # Force leave uses the employee's vacation leave credit pool.
+        # IF leave_type in (vacation, sick, force)
         # AND days_requested > days_remaining_balance THEN return
         # ------------------------------------------------------------------
-        if leave_type in ("vacation_leave", "sick_leave"):
+        if leave_type in ("vacation_leave", "sick_leave", "force_leave"):
             if days_req > days_balance:
                 return False, (
                     f"Insufficient leave balance. "
@@ -142,22 +143,26 @@ class RuleEngine:
                 )
 
         # ------------------------------------------------------------------
-        # RULE 5: Vacation leave must be filed at least 5 days in advance
-        # IF leave_type == vacation_leave
-        # AND days until start < 5 THEN return
+        # RULE 6: Advance notice — applies to any leave type that has
+        #         min_days_advance_notice defined in the Knowledge Base.
+        # Covered types: vacation (5d), force (5d), special privilege (5d),
+        #   wellness (5d), maternity (30d), paternity (30d),
+        #   special sick leave for women (5d).
+        # IF min_days_advance_notice is set
+        # AND days_until_start < min_notice THEN return
         # ------------------------------------------------------------------
-        if leave_type == "vacation_leave":
+        min_notice = rule.get("min_days_advance_notice")
+        if min_notice is not None:
             days_until_start = (start_date - date.today()).days
-            min_notice = rule["min_days_advance_notice"]   # 5 days, from Knowledge Base
-
+            leave_type_label = leave_type.replace("_", " ").title()
             if days_until_start < min_notice:
                 return False, (
-                    f"Vacation leave must be filed at least {min_notice} days "
+                    f"{leave_type_label} must be filed at least {min_notice} day(s) "
                     f"in advance. You filed only {days_until_start} day(s) before."
                 )
 
         # ------------------------------------------------------------------
-        # RULE 6: Sick leave exceeding 6 days requires a medical certificate
+        # RULE 7: Sick leave exceeding 6 days requires a medical certificate
         # IF leave_type == sick_leave
         # AND days_requested > 6
         # AND has_medical_certificate == False THEN return
@@ -173,7 +178,7 @@ class RuleEngine:
                 )
 
         # ------------------------------------------------------------------
-        # RULE 7: Solo Parent Leave requires a Solo Parent ID card
+        # RULE 8: Solo Parent Leave requires a Solo Parent ID card
         # IF leave_type == solo_parent_leave
         # AND has_solo_parent_id == False THEN return
         # ------------------------------------------------------------------
@@ -183,32 +188,25 @@ class RuleEngine:
                 return False, "Solo Parent Leave requires a valid Solo Parent ID card."
 
         # ------------------------------------------------------------------
-        # RULE 9: Special Privilege Leave requires a written justification
-        # Source: CSC MC No. 6 s. 1996
-        # Employee must state the specific occasion (birthday, graduation, etc.)
-        # IF leave_type == special_privilege_leave
-        # AND has_justification == False THEN return
+        # RULE 9: Paternity Leave requires a Marriage Certificate
+        # IF leave_type == paternity_leave
+        # AND has_marriage_certificate == False THEN return
         # ------------------------------------------------------------------
-        if leave_type == "special_privilege_leave":
-            has_justification = application.get("has_written_justification", False)
-            if not has_justification:
-                return False, (
-                    "Special Privilege Leave requires a written justification "
-                    "stating the specific occasion (e.g., birthday, graduation)."
-                )
+        if leave_type == "paternity_leave":
+            has_cert = application.get("has_marriage_certificate", False)
+            if not has_cert:
+                return False, "Paternity Leave requires a valid Marriage Certificate."
 
         # ------------------------------------------------------------------
-        # RULE 10: Wellness Leave requires a wellness certificate
-        # Source: Agency wellness program policy
-        # IF leave_type == wellness_leave
-        # AND has_wellness_certificate == False THEN return
+        # RULE 10: Special Sick Leave for Women requires a medical certificate
+        # IF leave_type == special_sick_leave_for_women
+        # AND has_medical_certificate == False THEN return
         # ------------------------------------------------------------------
-        if leave_type == "wellness_leave":
-            has_wellness_cert = application.get("has_wellness_certificate", False)
-            if not has_wellness_cert:
+        if leave_type == "special_sick_leave_for_women":
+            has_cert = application.get("has_medical_certificate", False)
+            if not has_cert:
                 return False, (
-                    "Wellness Leave requires a certificate from the "
-                    "agency wellness officer."
+                    "Special Sick Leave for Women requires a medical certificate."
                 )
 
         # ------------------------------------------------------------------

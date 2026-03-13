@@ -40,12 +40,13 @@
 #             No-remarks and with-remarks for 3 supervisor groups
 #
 #   ── Leave Application Path ────────────────────────────────────────
-#   BLOCK 5 — Leave Rule Engine Tests    (TC-LV-001 to TC-LV-010)  10 cases
+#   BLOCK 5 — Leave Rule Engine Tests    (TC-LV-001 to TC-LV-014)  14 cases
 #             One case per CSC leave compliance rule
-#   BLOCK 6 — Leave DT Routing Tests     (TC-LV-011 to TC-LV-025)  15 cases
+#   BLOCK 6 — Leave DT Routing Tests     (TC-LV-015 to TC-LV-030)  16 cases
 #             All 4 routing classes, all leave types, multiple employees
+#   BLOCK 7 — DH as Applicant           (TC-LV-031 to TC-LV-034)   4 cases
 #
-#   TOTAL: 71 test cases
+#   TOTAL: 76 test cases
 #
 # HOW TO RUN:
 #   python tests.py
@@ -61,8 +62,10 @@ from workflow_router import WorkflowRouter
 router = WorkflowRouter()
 
 # Shared date helpers for leave tests
-_future = date.today() + timedelta(days=10)   # valid advance notice
-_soon   = date.today() + timedelta(days=2)    # too close — violates Rule 5b
+_future     = date.today() + timedelta(days=10)   # valid 5-day advance notice
+_far_future = date.today() + timedelta(days=35)   # valid 30-day advance notice (maternity/paternity)
+_soon       = date.today() + timedelta(days=2)    # too close — violates 5-day notice rule
+_close_30   = date.today() + timedelta(days=10)   # too close — violates 30-day notice rule
 
 # Counters
 total        = 0
@@ -954,8 +957,12 @@ def run_leave_test(
 #   TC-LV-006 — Rule 5b: Vacation leave filed less than 5 days in advance
 #   TC-LV-007 — Rule 6:  Sick leave > 6 days without medical certificate
 #   TC-LV-008 — Rule 7:  Solo Parent Leave without Solo Parent ID
-#   TC-LV-009 — Rule 9:  Special Privilege Leave without written justification
-#   TC-LV-010 — Rule 10: Wellness Leave without wellness certificate
+#   TC-LV-009 — Rule 9:  Paternity Leave without Marriage Certificate
+#   TC-LV-010 — Rule 6 (advance notice): Paternity leave filed < 30 days before start
+#   TC-LV-011 — Rule 6 (advance notice): Maternity leave filed < 30 days before start
+#   TC-LV-012 — Rule 6 (advance notice): Force leave filed < 5 days before start
+#   TC-LV-013 — Rule 4 (balance):        Force leave exceeds vacation leave balance
+#   TC-LV-014 — Rule 10: Special Sick Leave for Women without medical certificate
 # =============================================================================
 
 print()
@@ -1146,46 +1153,135 @@ run_leave_test(
 )
 
 # TC-LV-009
-# Scenario : Special Privilege Leave submitted without written justification
-# Rule     : Rule 9 — Special Privilege Leave requires written justification
-# Expected : Application returned — justification missing
+# Scenario : Paternity Leave submitted without a Marriage Certificate
+# Rule     : Rule 9 — Paternity Leave requires a valid Marriage Certificate
+# Expected : Application returned — certificate missing
 run_leave_test(
     test_id         = "TC-LV-009",
-    description     = "Special Privilege Leave without justification — Kevin Mendoza (EMP-006)",
-    flowchart_step  = "Compliance Check → special_privilege_leave AND no justification → Return",
+    description     = "Paternity Leave without Marriage Certificate — Kevin Mendoza (EMP-006)",
+    flowchart_step  = "Compliance Check → paternity_leave AND no marriage cert → Return",
     application     = {
-        "employee_id":              "EMP-006",
-        "leave_type":               "special_privilege_leave",
-        "days_requested":           1,
-        "days_remaining_balance":   0,
-        "start_date":               _future,
-        "has_written_justification": False,
-        "dh_decision":              0,
-        "hr_decision":              0,
-        "has_rejection_reason":     0,
+        "employee_id":            "EMP-006",
+        "leave_type":             "paternity_leave",
+        "days_requested":         5,
+        "days_remaining_balance": 0,
+        "start_date":             _far_future,
+        "has_marriage_certificate": False,
+        "dh_decision":            0,
+        "hr_decision":            0,
+        "has_rejection_reason":   0,
     },
     expected_status = "returned",
     expected_action = "returned",
 )
 
 # TC-LV-010
-# Scenario : Wellness Leave submitted without a wellness certificate
-# Rule     : Rule 10 — Wellness Leave requires wellness certificate
-# Expected : Application returned — certificate missing
+# Scenario : Paternity Leave filed only 10 days before start (minimum is 30)
+# Rule     : Rule 6 (advance notice) — Paternity Leave must be filed 30 days in advance
+# Expected : Application returned — advance notice violated
 run_leave_test(
     test_id         = "TC-LV-010",
-    description     = "Wellness Leave without wellness certificate — Lorraine Flores (EMP-007)",
-    flowchart_step  = "Compliance Check → wellness_leave AND no wellness cert → Return",
+    description     = "Paternity Leave filed 10 days before start (min 30) — Lorraine Flores (EMP-007)",
+    flowchart_step  = "Compliance Check → days_until_start < 30 (paternity) → Return",
+    application     = {
+        "employee_id":             "EMP-007",
+        "leave_type":              "paternity_leave",
+        "days_requested":          5,
+        "days_remaining_balance":  0,
+        "start_date":              _close_30,
+        "has_marriage_certificate": True,
+        "dh_decision":             0,
+        "hr_decision":             0,
+        "has_rejection_reason":    0,
+    },
+    expected_status = "returned",
+    expected_action = "returned",
+)
+
+# TC-LV-011
+# Scenario : Maternity Leave filed only 10 days before start (minimum is 30)
+# Rule     : Rule 6 (advance notice) — Maternity Leave must be filed 30 days in advance
+# Expected : Application returned — advance notice violated
+run_leave_test(
+    test_id         = "TC-LV-011",
+    description     = "Maternity Leave filed 10 days before start (min 30) — Lorraine Flores (EMP-007)",
+    flowchart_step  = "Compliance Check → days_until_start < 30 (maternity) → Return",
     application     = {
         "employee_id":            "EMP-007",
-        "leave_type":             "wellness_leave",
-        "days_requested":         2,
-        "days_remaining_balance":  0,
-        "start_date":             _future,
-        "has_wellness_certificate": False,
+        "leave_type":             "maternity_leave",
+        "days_requested":         60,
+        "days_remaining_balance": 0,
+        "start_date":             _close_30,
         "dh_decision":            0,
         "hr_decision":            0,
         "has_rejection_reason":   0,
+    },
+    expected_status = "returned",
+    expected_action = "returned",
+)
+
+# TC-LV-012
+# Scenario : Force Leave filed only 2 days before start (minimum is 5)
+# Rule     : Rule 6 (advance notice) — Force Leave must be filed 5 days in advance
+# Expected : Application returned — advance notice violated
+run_leave_test(
+    test_id         = "TC-LV-012",
+    description     = "Force Leave filed 2 days before start (min 5) — Camille Navarro (EMP-009)",
+    flowchart_step  = "Compliance Check → days_until_start < 5 (force) → Return",
+    application     = {
+        "employee_id":            "EMP-009",
+        "leave_type":             "force_leave",
+        "days_requested":         2,
+        "days_remaining_balance": 10,
+        "start_date":             _soon,
+        "dh_decision":            0,
+        "hr_decision":            0,
+        "has_rejection_reason":   0,
+    },
+    expected_status = "returned",
+    expected_action = "returned",
+)
+
+# TC-LV-013
+# Scenario : Force Leave of 4 days but employee only has 2 vacation leave credits
+# Rule     : Rule 4 (balance) — Force Leave uses vacation leave credits; cannot exceed balance
+# Expected : Application returned — insufficient balance
+run_leave_test(
+    test_id         = "TC-LV-013",
+    description     = "Force Leave exceeds vacation balance (4 requested, 2 remaining) — Joshua Aquino (EMP-010)",
+    flowchart_step  = "Compliance Check → force_leave days_requested > days_balance → Return",
+    application     = {
+        "employee_id":            "EMP-010",
+        "leave_type":             "force_leave",
+        "days_requested":         4,
+        "days_remaining_balance": 2,
+        "start_date":             _future,
+        "dh_decision":            0,
+        "hr_decision":            0,
+        "has_rejection_reason":   0,
+    },
+    expected_status = "returned",
+    expected_action = "returned",
+)
+
+# TC-LV-014
+# Scenario : Special Sick Leave for Women submitted without a medical certificate
+# Rule     : Rule 10 — Special Sick Leave for Women requires a medical certificate
+# Expected : Application returned — certificate missing
+run_leave_test(
+    test_id         = "TC-LV-014",
+    description     = "Special Sick Leave for Women without medical cert — Patricia Garcia (EMP-005)",
+    flowchart_step  = "Compliance Check → special_sick_leave_for_women AND no medical cert → Return",
+    application     = {
+        "employee_id":             "EMP-005",
+        "leave_type":              "special_sick_leave_for_women",
+        "days_requested":          30,
+        "days_remaining_balance":  0,
+        "start_date":              _future,
+        "has_medical_certificate": False,
+        "dh_decision":             0,
+        "hr_decision":             0,
+        "has_rejection_reason":    0,
     },
     expected_status = "returned",
     expected_action = "returned",
@@ -1198,27 +1294,28 @@ run_leave_test(
 # All applications here are compliant (Rule Engine passes).
 #
 #   CLASS 0 — route_to_department_head
-#     TC-LV-011 — Vacation leave fresh application (EMP-005)
-#     TC-LV-012 — Sick leave <= 6 days, no cert needed (EMP-008)
-#     TC-LV-013 — Maternity leave fresh (EMP-007)
-#     TC-LV-014 — Solo Parent Leave WITH ID (EMP-009)
-#     TC-LV-015 — Special Privilege WITH justification (EMP-010)
-#     TC-LV-016 — Wellness leave WITH cert (EMP-006)
+#     TC-LV-015 — Vacation leave fresh application (EMP-005)
+#     TC-LV-016 — Sick leave <= 6 days, no cert needed (EMP-008)
+#     TC-LV-017 — Maternity leave fresh (EMP-007)
+#     TC-LV-018 — Solo Parent Leave WITH ID (EMP-009)
+#     TC-LV-019 — Special Privilege Leave fresh (EMP-010)
+#     TC-LV-020 — Wellness leave fresh (EMP-006)
 #
 #   CLASS 1 — route_to_hr
-#     TC-LV-017 — Vacation leave DH approved (EMP-005)
-#     TC-LV-018 — Sick leave > 6 WITH cert, DH approved (EMP-005)
-#     TC-LV-019 — Paternity leave DH approved (EMP-008)
+#     TC-LV-021 — Vacation leave DH approved (EMP-005)
+#     TC-LV-022 — Sick leave WITH cert, DH approved (EMP-005)
+#     TC-LV-023 — Paternity leave DH approved WITH marriage cert (EMP-008)
 #
 #   CLASS 2 — require_rejection_reason
-#     TC-LV-020 — DH rejected, no reason yet (EMP-005)
-#     TC-LV-021 — HR rejected, no reason yet (EMP-005)
+#     TC-LV-024 — DH rejected, no reason yet (EMP-005)
+#     TC-LV-025 — HR rejected, no reason yet (EMP-005)
 #
 #   CLASS 3 — completed
-#     TC-LV-022 — HR approved = completed (EMP-009)
-#     TC-LV-023 — DH rejected + reason recorded = completed (EMP-005)
-#     TC-LV-024 — HR rejected + reason recorded = completed (EMP-005)
-#     TC-LV-025 — Force leave HR approved = completed (EMP-009)
+#     TC-LV-026 — HR approved = completed (EMP-009)
+#     TC-LV-027 — DH rejected + reason recorded = completed (EMP-005)
+#     TC-LV-028 — HR rejected + reason recorded = completed (EMP-005)
+#     TC-LV-029 — Force leave HR approved = completed (EMP-009)
+#     TC-LV-030 — Special Sick Leave for Women fresh (EMP-005)
 # =============================================================================
 
 print("── BLOCK 6: Leave Decision Tree Routing Tests (Layer 2) ────")
@@ -1226,12 +1323,12 @@ print()
 
 # ── CLASS 0: route_to_department_head ─────────────────────────────────────────
 
-# TC-LV-011
+# TC-LV-015
 # Scenario : Fresh vacation leave application — DH has not reviewed yet
 # DT Class : 0 — route_to_department_head
 # Expected : Routed to John Reyes (Department Head)
 run_leave_test(
-    test_id          = "TC-LV-011",
+    test_id          = "TC-LV-015",
     description      = "Fresh vacation leave application — Patricia Garcia (EMP-005) → John Reyes",
     flowchart_step   = "Compliance Pass → DT Class 0 → Route to Department Head",
     application      = {
@@ -1249,12 +1346,12 @@ run_leave_test(
     expected_approver = "John Reyes",
 )
 
-# TC-LV-012
+# TC-LV-016
 # Scenario : Sick leave of 2 days (no certificate required) — fresh application
 # DT Class : 0 — route_to_department_head
 # Expected : Routed to John Reyes
 run_leave_test(
-    test_id          = "TC-LV-012",
+    test_id          = "TC-LV-016",
     description      = "Sick leave 2 days (no cert required), fresh — Daniel Ramos (EMP-008) → John Reyes",
     flowchart_step   = "Compliance Pass → DT Class 0 → Route to Department Head",
     application      = {
@@ -1273,12 +1370,12 @@ run_leave_test(
     expected_approver = "John Reyes",
 )
 
-# TC-LV-013
-# Scenario : Maternity leave fresh application (105-day entitlement)
+# TC-LV-017
+# Scenario : Maternity leave fresh application (105-day entitlement, 35-day notice)
 # DT Class : 0 — route_to_department_head
 # Expected : Routed to John Reyes
 run_leave_test(
-    test_id          = "TC-LV-013",
+    test_id          = "TC-LV-017",
     description      = "Maternity leave fresh application — Lorraine Flores (EMP-007) → John Reyes",
     flowchart_step   = "Compliance Pass → DT Class 0 → Route to Department Head",
     application      = {
@@ -1286,7 +1383,7 @@ run_leave_test(
         "leave_type":            "maternity_leave",
         "days_requested":        60,
         "days_remaining_balance": 0,
-        "start_date":            _future,
+        "start_date":            _far_future,
         "dh_decision":           0,
         "hr_decision":           0,
         "has_rejection_reason":  0,
@@ -1296,12 +1393,12 @@ run_leave_test(
     expected_approver = "John Reyes",
 )
 
-# TC-LV-014
+# TC-LV-018
 # Scenario : Solo Parent Leave WITH Solo Parent ID (attachment present)
 # DT Class : 0 — route_to_department_head
 # Expected : Routed to John Reyes
 run_leave_test(
-    test_id          = "TC-LV-014",
+    test_id          = "TC-LV-018",
     description      = "Solo Parent Leave WITH ID — Camille Navarro (EMP-009) → John Reyes",
     flowchart_step   = "Compliance Pass → DT Class 0 → Route to Department Head",
     application      = {
@@ -1320,48 +1417,46 @@ run_leave_test(
     expected_approver = "John Reyes",
 )
 
-# TC-LV-015
-# Scenario : Special Privilege Leave WITH written justification
+# TC-LV-019
+# Scenario : Special Privilege Leave fresh application (5-day advance notice, no attachment)
 # DT Class : 0 — route_to_department_head
 # Expected : Routed to John Reyes
 run_leave_test(
-    test_id          = "TC-LV-015",
-    description      = "Special Privilege Leave WITH justification — Joshua Aquino (EMP-010) → John Reyes",
+    test_id          = "TC-LV-019",
+    description      = "Special Privilege Leave fresh — Joshua Aquino (EMP-010) → John Reyes",
     flowchart_step   = "Compliance Pass → DT Class 0 → Route to Department Head",
     application      = {
-        "employee_id":              "EMP-010",
-        "leave_type":               "special_privilege_leave",
-        "days_requested":           1,
-        "days_remaining_balance":   0,
-        "start_date":               _future,
-        "has_written_justification": True,
-        "dh_decision":              0,
-        "hr_decision":              0,
-        "has_rejection_reason":     0,
+        "employee_id":            "EMP-010",
+        "leave_type":             "special_privilege_leave",
+        "days_requested":         1,
+        "days_remaining_balance": 0,
+        "start_date":             _future,
+        "dh_decision":            0,
+        "hr_decision":            0,
+        "has_rejection_reason":   0,
     },
     expected_status   = "routed",
     expected_action   = "route_to_department_head",
     expected_approver = "John Reyes",
 )
 
-# TC-LV-016
-# Scenario : Wellness Leave WITH wellness certificate
+# TC-LV-020
+# Scenario : Wellness Leave fresh application (5-day advance notice, no attachment)
 # DT Class : 0 — route_to_department_head
 # Expected : Routed to John Reyes
 run_leave_test(
-    test_id          = "TC-LV-016",
-    description      = "Wellness Leave WITH certificate — Kevin Mendoza (EMP-006) → John Reyes",
+    test_id          = "TC-LV-020",
+    description      = "Wellness Leave fresh — Kevin Mendoza (EMP-006) → John Reyes",
     flowchart_step   = "Compliance Pass → DT Class 0 → Route to Department Head",
     application      = {
-        "employee_id":             "EMP-006",
-        "leave_type":              "wellness_leave",
-        "days_requested":          2,
-        "days_remaining_balance":  0,
-        "start_date":              _future,
-        "has_wellness_certificate": True,
-        "dh_decision":             0,
-        "hr_decision":             0,
-        "has_rejection_reason":    0,
+        "employee_id":            "EMP-006",
+        "leave_type":             "wellness_leave",
+        "days_requested":         2,
+        "days_remaining_balance": 0,
+        "start_date":             _future,
+        "dh_decision":            0,
+        "hr_decision":            0,
+        "has_rejection_reason":   0,
     },
     expected_status   = "routed",
     expected_action   = "route_to_department_head",
@@ -1370,12 +1465,12 @@ run_leave_test(
 
 # ── CLASS 1: route_to_hr ──────────────────────────────────────────────────────
 
-# TC-LV-017
+# TC-LV-021
 # Scenario : Department Head approved vacation leave — forward to HR Officer
 # DT Class : 1 — route_to_hr
 # Expected : Routed to HR Officer
 run_leave_test(
-    test_id          = "TC-LV-017",
+    test_id          = "TC-LV-021",
     description      = "Vacation leave DH approved → HR Officer — Patricia Garcia (EMP-005)",
     flowchart_step   = "Compliance Pass → DH approved → DT Class 1 → Route to HR",
     application      = {
@@ -1393,12 +1488,12 @@ run_leave_test(
     expected_approver = "HR Officer",
 )
 
-# TC-LV-018
-# Scenario : Sick leave > 6 days WITH cert, DH approved — forward to HR
+# TC-LV-022
+# Scenario : Sick leave WITH cert, DH approved — forward to HR
 # DT Class : 1 — route_to_hr
 # Expected : Routed to HR Officer
 run_leave_test(
-    test_id          = "TC-LV-018",
+    test_id          = "TC-LV-022",
     description      = "Sick leave 5 days WITH cert, DH approved → HR — Patricia Garcia (EMP-005)",
     flowchart_step   = "Compliance Pass → DH approved → DT Class 1 → Route to HR",
     application      = {
@@ -1417,23 +1512,24 @@ run_leave_test(
     expected_approver = "HR Officer",
 )
 
-# TC-LV-019
-# Scenario : Paternity leave DH approved — forward to HR Officer
+# TC-LV-023
+# Scenario : Paternity leave DH approved WITH marriage certificate — forward to HR Officer
 # DT Class : 1 — route_to_hr
 # Expected : Routed to HR Officer
 run_leave_test(
-    test_id          = "TC-LV-019",
-    description      = "Paternity leave DH approved → HR Officer — Daniel Ramos (EMP-008)",
+    test_id          = "TC-LV-023",
+    description      = "Paternity leave DH approved WITH marriage cert → HR Officer — Daniel Ramos (EMP-008)",
     flowchart_step   = "Compliance Pass → DH approved → DT Class 1 → Route to HR",
     application      = {
-        "employee_id":           "EMP-008",
-        "leave_type":            "paternity_leave",
-        "days_requested":        7,
-        "days_remaining_balance": 0,
-        "start_date":            _future,
-        "dh_decision":           1,
-        "hr_decision":           0,
-        "has_rejection_reason":  0,
+        "employee_id":             "EMP-008",
+        "leave_type":              "paternity_leave",
+        "days_requested":          7,
+        "days_remaining_balance":  0,
+        "start_date":              _far_future,
+        "has_marriage_certificate": True,
+        "dh_decision":             1,
+        "hr_decision":             0,
+        "has_rejection_reason":    0,
     },
     expected_status   = "routed",
     expected_action   = "route_to_hr",
@@ -1442,12 +1538,12 @@ run_leave_test(
 
 # ── CLASS 2: require_rejection_reason ─────────────────────────────────────────
 
-# TC-LV-020
+# TC-LV-024
 # Scenario : Department Head rejected the application — no reason recorded yet
 # DT Class : 2 — require_rejection_reason
 # Expected : Action required — rejection reason must be recorded by DH
 run_leave_test(
-    test_id          = "TC-LV-020",
+    test_id          = "TC-LV-024",
     description      = "DH rejected, no reason yet — Patricia Garcia (EMP-005) → John Reyes must record reason",
     flowchart_step   = "Compliance Pass → DH rejected → no reason → DT Class 2 → Require Rejection Reason",
     application      = {
@@ -1465,12 +1561,12 @@ run_leave_test(
     expected_approver = "John Reyes",
 )
 
-# TC-LV-021
+# TC-LV-025
 # Scenario : HR Officer rejected the application — no reason recorded yet
 # DT Class : 2 — require_rejection_reason
 # Expected : Action required — rejection reason must be recorded by HR
 run_leave_test(
-    test_id          = "TC-LV-021",
+    test_id          = "TC-LV-025",
     description      = "HR rejected, no reason yet — Patricia Garcia (EMP-005) → HR must record reason",
     flowchart_step   = "Compliance Pass → DH approved → HR rejected → no reason → DT Class 2 → Require Rejection Reason",
     application      = {
@@ -1490,12 +1586,12 @@ run_leave_test(
 
 # ── CLASS 3: completed ────────────────────────────────────────────────────────
 
-# TC-LV-022
+# TC-LV-026
 # Scenario : HR Officer approved the application — process complete
 # DT Class : 3 — completed (Trigger A: HR approved)
 # Expected : Completed — leave credits deducted
 run_leave_test(
-    test_id         = "TC-LV-022",
+    test_id         = "TC-LV-026",
     description     = "HR approved vacation leave — Camille Navarro (EMP-009) → completed",
     flowchart_step  = "Compliance Pass → DH approved → HR approved → DT Class 3 → Completed",
     application     = {
@@ -1512,12 +1608,12 @@ run_leave_test(
     expected_action = "completed",
 )
 
-# TC-LV-023
+# TC-LV-027
 # Scenario : DH rejected and rejection reason has been recorded
 # DT Class : 3 — completed (Trigger B: rejected + reason recorded)
 # Expected : Completed — application closed
 run_leave_test(
-    test_id         = "TC-LV-023",
+    test_id         = "TC-LV-027",
     description     = "DH rejected + reason recorded — Patricia Garcia (EMP-005) → completed",
     flowchart_step  = "DH rejected → reason recorded → DT Class 3 → Completed",
     application     = {
@@ -1534,12 +1630,12 @@ run_leave_test(
     expected_action = "completed",
 )
 
-# TC-LV-024
+# TC-LV-028
 # Scenario : HR rejected and rejection reason has been recorded
 # DT Class : 3 — completed (Trigger B: rejected + reason recorded)
 # Expected : Completed — application closed
 run_leave_test(
-    test_id         = "TC-LV-024",
+    test_id         = "TC-LV-028",
     description     = "HR rejected + reason recorded — Patricia Garcia (EMP-005) → completed",
     flowchart_step  = "DH approved → HR rejected → reason recorded → DT Class 3 → Completed",
     application     = {
@@ -1556,19 +1652,19 @@ run_leave_test(
     expected_action = "completed",
 )
 
-# TC-LV-025
-# Scenario : Force leave — HR approved (different leave type, completed path)
+# TC-LV-029
+# Scenario : Force leave — HR approved (uses vacation leave balance, 5-day notice)
 # DT Class : 3 — completed (Trigger A: HR approved)
 # Expected : Completed
 run_leave_test(
-    test_id         = "TC-LV-025",
+    test_id         = "TC-LV-029",
     description     = "Force leave HR approved — Camille Navarro (EMP-009) → completed",
     flowchart_step  = "Compliance Pass → DH approved → HR approved → DT Class 3 → Completed",
     application     = {
         "employee_id":           "EMP-009",
         "leave_type":            "force_leave",
         "days_requested":        5,
-        "days_remaining_balance": 0,
+        "days_remaining_balance": 5,
         "start_date":            _future,
         "dh_decision":           1,
         "hr_decision":           1,
@@ -1578,9 +1674,33 @@ run_leave_test(
     expected_action = "completed",
 )
 
+# TC-LV-030
+# Scenario : Special Sick Leave for Women — fresh application WITH medical cert
+# DT Class : 0 — route_to_department_head
+# Expected : Routed to John Reyes
+run_leave_test(
+    test_id          = "TC-LV-030",
+    description      = "Special Sick Leave for Women fresh WITH cert — Patricia Garcia (EMP-005) → John Reyes",
+    flowchart_step   = "Compliance Pass → DT Class 0 → Route to Department Head",
+    application      = {
+        "employee_id":             "EMP-005",
+        "leave_type":              "special_sick_leave_for_women",
+        "days_requested":          30,
+        "days_remaining_balance":  0,
+        "start_date":              _future,
+        "has_medical_certificate": True,
+        "dh_decision":             0,
+        "hr_decision":             0,
+        "has_rejection_reason":    0,
+    },
+    expected_status   = "routed",
+    expected_action   = "route_to_department_head",
+    expected_approver = "John Reyes",
+)
+
 
 # =============================================================================
-# BLOCK 7 — Department Head as Leave Applicant  (TC-LV-026 to TC-LV-029)
+# BLOCK 7 — Department Head as Leave Applicant  (TC-LV-031 to TC-LV-034)
 # =============================================================================
 # These tests verify the special-case logic in Branch 0 of route_leave():
 # when EMP-001 (John Reyes, Department Head) submits a leave application,
@@ -1588,11 +1708,11 @@ run_leave_test(
 # All four HR-decision states are covered.
 # =============================================================================
 
-# TC-LV-026
+# TC-LV-031
 # Scenario : DH submits leave — fresh (hr_decision=0) → escalates to HR
 # Expected : routed / sent_to_hr / approver = HR Officer
 run_leave_test(
-    test_id         = "TC-LV-026",
+    test_id         = "TC-LV-031",
     description     = "DH submits vacation leave — fresh → escalated to HR Officer",
     flowchart_step  = "DH applicant → skip DH stage → HR decision=0 → sent_to_hr",
     application     = {
@@ -1610,11 +1730,11 @@ run_leave_test(
     expected_approver = "HR Officer",
 )
 
-# TC-LV-027
+# TC-LV-032
 # Scenario : DH submits leave — HR approved → completed
 # Expected : completed
 run_leave_test(
-    test_id         = "TC-LV-027",
+    test_id         = "TC-LV-032",
     description     = "DH submits sick leave — HR approved → completed",
     flowchart_step  = "DH applicant → skip DH stage → HR decision=1 → completed",
     application     = {
@@ -1631,11 +1751,11 @@ run_leave_test(
     expected_action = "completed",
 )
 
-# TC-LV-028
+# TC-LV-033
 # Scenario : DH submits leave — HR rejected, no reason yet → action_required
 # Expected : action_required / rejection_reason_pending
 run_leave_test(
-    test_id         = "TC-LV-028",
+    test_id         = "TC-LV-033",
     description     = "DH submits leave — HR rejected, no reason → action_required",
     flowchart_step  = "DH applicant → skip DH stage → HR decision=2, no reason → rejection_reason_pending",
     application     = {
@@ -1652,11 +1772,11 @@ run_leave_test(
     expected_action = "rejection_reason_pending",
 )
 
-# TC-LV-029
+# TC-LV-034
 # Scenario : DH submits leave — HR rejected, reason recorded → completed
 # Expected : completed
 run_leave_test(
-    test_id         = "TC-LV-029",
+    test_id         = "TC-LV-034",
     description     = "DH submits leave — HR rejected, reason recorded → completed",
     flowchart_step  = "DH applicant → skip DH stage → HR decision=2, reason recorded → completed",
     application     = {
@@ -1694,17 +1814,17 @@ if failed == 0:
     print("    BLOCK 4 — Remarks Path      :  6 cases  (TC-DT-020 to TC-DT-025)")
     print()
     print("    ── Leave Application Path ────────────────────────────────")
-    print("    BLOCK 5 — Leave Rule Engine : 10 cases  (TC-LV-001 to TC-LV-010)")
-    print("    BLOCK 6 — Leave DT Routing  : 15 cases  (TC-LV-011 to TC-LV-025)")
-    print("    BLOCK 7 — DH as Applicant   :  4 cases  (TC-LV-026 to TC-LV-029)")
+    print("    BLOCK 5 — Leave Rule Engine : 14 cases  (TC-LV-001 to TC-LV-014)")
+    print("    BLOCK 6 — Leave DT Routing  : 16 cases  (TC-LV-015 to TC-LV-030)")
+    print("    BLOCK 7 — DH as Applicant   :  4 cases  (TC-LV-031 to TC-LV-034)")
     print()
     print("  IPCR: All 20 eligible employees covered for fresh submission.")
     print("  IPCR: Full rating scale: 1.0, 1.5, 2.0, 2.49, 2.5, 2.51, 3.0, 3.5, 4.5, 5.0")
     print("  IPCR: All 3 supervisor groups covered for remarks path.")
     print()
-    print("  Leave: All 10 CSC compliance rules covered (one case per rule).")
+    print("  Leave: All 14 CSC compliance rules covered (one case per rule).")
     print("  Leave: All 4 DT routing classes covered.")
-    print("  Leave: All 8 leave types covered across Blocks 5 and 6.")
+    print("  Leave: All 9 leave types covered across Blocks 5 and 6.")
     print("  Leave: Both rejection paths covered (DH rejected, HR rejected).")
     print("  Leave: Department Head as applicant — all 4 HR-decision states covered.")
 else:

@@ -378,10 +378,10 @@ class WorkflowRouter:
         # Determine has_required_attachment from the relevant leave type
         # (Rule Engine already confirmed the attachment is present if required)
         required_checks = {
-            "sick_leave":              application.get("has_medical_certificate", False),
-            "solo_parent_leave":       application.get("has_solo_parent_id", False),
-            "special_privilege_leave": application.get("has_written_justification", False),
-            "wellness_leave":          application.get("has_wellness_certificate", False),
+            "sick_leave":                    application.get("has_medical_certificate", False),
+            "paternity_leave":               application.get("has_marriage_certificate", False),
+            "solo_parent_leave":             application.get("has_solo_parent_id", False),
+            "special_sick_leave_for_women":  application.get("has_medical_certificate", False),
         }
         has_attachment = int(required_checks.get(leave_type, True))
 

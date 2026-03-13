@@ -85,7 +85,7 @@ DATA_DIR = os.path.join(BASE_DIR, "data")
 # Leave setup constants — derived from org_and_rules
 # ─────────────────────────────────────────────────────────────────────────────
 
-LEAVE_TYPES = list(LEAVE_TYPE_ENCODING.keys())   # 8 leave types
+LEAVE_TYPES = list(LEAVE_TYPE_ENCODING.keys())   # 9 leave types
 
 MAX_DAYS_BY_TYPE = {}
 for _lt in LEAVE_TYPES:
@@ -227,15 +227,16 @@ def generate_leave_data(samples_per_employee=100):
 
         for i in range(samples_per_employee):
 
-            # Cycle through all 8 leave types evenly
+            # Cycle through all 9 leave types evenly
             leave_type = LEAVE_TYPES[i % len(LEAVE_TYPES)]
             leave_enc  = LEAVE_TYPE_ENCODING[leave_type]
             max_days   = MAX_DAYS_BY_TYPE[leave_type]
 
             days_req = int(np.random.randint(1, max_days + 1))
 
-            # Vacation/sick: tracked balance. All others: fixed entitlement → 0
-            if leave_type in ("vacation_leave", "sick_leave"):
+            # Vacation/sick/force: tracked balance. All others: fixed entitlement → 0
+            # Force leave draws from the vacation leave credit pool.
+            if leave_type in ("vacation_leave", "sick_leave", "force_leave"):
                 days_balance = int(np.random.randint(days_req, 16))
             else:
                 days_balance = 0
