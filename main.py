@@ -359,8 +359,14 @@ def main():
     print("  Loading models...", end=" ", flush=True)
     print("Ready.")
 
-    employee_id  = ask_employee_id()
-    display_name = input("Enter your name: ").strip() or EMPLOYEES[employee_id]["name"]
+    employee_id = ask_employee_id()
+    expected    = EMPLOYEES[employee_id]["name"]
+    while True:
+        entered = input("Enter your name: ").strip()
+        if entered.lower() == expected.lower():
+            break
+        print(f"  Name does not match records. Expected: {expected}")
+    display_name = expected
 
     action_menu(employee_id, display_name)
 
