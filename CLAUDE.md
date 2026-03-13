@@ -5,7 +5,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Commands
 
 ```bash
-# Run all tests (60 test cases)
+# Run all tests (76 test cases)
 python -X utf8 tests.py
 
 # One-time setup: generate training data, train models, self-check
@@ -63,7 +63,7 @@ Caller → WorkflowRouter → Layer 1: RuleEngine → Layer 2: DecisionTree
 
 ### Encodings contract
 
-The integer encodings in `org_and_rules.py` must be consistent across three files: `org_and_rules.py`, `training_data.py`, and `workflow_router.py`. If you add a new role or leave type, update all three and retrain.
+The integer encodings in `org_and_rules.py` must be consistent across three files: `org_and_rules.py`, `training_data.py`, and `workflow_router.py`. If you add a new role or leave type, update all three and retrain. Current leave type encoding goes 0–8 (9 types).
 
 ### Adding employees
 
@@ -76,6 +76,22 @@ All 20 employees (EMP-002 to EMP-021) report directly to John Reyes (EMP-001, De
 ### Training data and models
 
 Generated/trained by `setup.py` via `training_data.py` and `decision_tree.py`. Running `setup.py` overwrites existing files — no manual deletion needed. The Decision Tree features contain no employee IDs; adding employees does not require retraining unless a new role is introduced.
+
+### Leave rules summary (current)
+
+| Leave Type | Max | Notice | Attachments |
+|---|---|---|---|
+| Vacation | 15 days/year, balance-limited | 5 days | — |
+| Sick | 15 days/year, balance-limited | — | Medical cert if > 6 days |
+| Maternity | 105 days | 30 days | — |
+| Paternity | 7 days | 30 days | Marriage Certificate |
+| Solo Parent | 7 days | — | Solo Parent ID |
+| Force | 5 days/year, uses vacation balance | 5 days | — |
+| Special Privilege | 3 days/year | 5 days | — |
+| Wellness | 5 days/year | 5 days | — |
+| Special Sick Leave for Women | 90 days | 5 days | Medical cert (always) |
+
+Force leave draws from the employee's vacation leave credit pool.
 
 ### Key constants (IPCR)
 - Rating scale: 1.0–5.0
