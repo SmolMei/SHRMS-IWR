@@ -236,7 +236,8 @@ def display_ipcr_result(form, result):
     print(f"Status         : {result.get('status', '').title()}")
     print(f"Routing Action : {action}")
     if result.get("evaluator_name"):
-        print(f"Routed to      : {result['evaluator_name']} ({result.get('evaluator_role', '')})")
+        label = "Routed to" if result.get("status") == "routed" else "Rated by"
+        print(f"{label:<15}: {result['evaluator_name']} ({result.get('evaluator_role', '')})")
     if result.get("rating") is not None:
         print(f"Rating         : {result['rating']}")
     if result.get("confidence_pct") is not None:

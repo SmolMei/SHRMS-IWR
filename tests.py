@@ -440,7 +440,7 @@ print()
 # Rating: 5.0 — maximum possible IPCR score (Outstanding)
 run_test(
     test_id         = "TC-DT-010",
-    description     = "Maximum rating 5.0 (Outstanding) — Lorraine Flores (EMP-007) → forward to HR",
+    description     = "Maximum rating 5.0 (Outstanding) — Lorraine Flores (EMP-007) → save data",
     flowchart_step  = "Employee Rating < 2.5? → No (5.0, maximum) → Passed → Save Data",
     form            = {
         "employee_id":         "EMP-007",
@@ -448,14 +448,14 @@ run_test(
         "performance_rating":  5.0,
     },
     expected_status = "completed",
-    expected_action = "forward_to_hr",
+    expected_action = "save_data",
 )
 
 # TC-DT-011
 # Rating: 4.5 — high passing score (Very Satisfactory range)
 run_test(
     test_id         = "TC-DT-011",
-    description     = "High passing rating 4.5 — Camille Navarro (EMP-009) → forward to HR",
+    description     = "High passing rating 4.5 — Camille Navarro (EMP-009) → save data",
     flowchart_step  = "Employee Rating < 2.5? → No (4.5, clearly passing) → Passed → Save Data",
     form            = {
         "employee_id":         "EMP-009",
@@ -463,14 +463,14 @@ run_test(
         "performance_rating":  4.5,
     },
     expected_status = "completed",
-    expected_action = "forward_to_hr",
+    expected_action = "save_data",
 )
 
 # TC-DT-012
 # Rating: 3.5 — mid-range passing score (Satisfactory range)
 run_test(
     test_id         = "TC-DT-012",
-    description     = "Mid-range passing rating 3.5 — Joshua Aquino (EMP-010) → forward to HR",
+    description     = "Mid-range passing rating 3.5 — Joshua Aquino (EMP-010) → save data",
     flowchart_step  = "Employee Rating < 2.5? → No (3.5, mid-range passing) → Passed → Save Data",
     form            = {
         "employee_id":         "EMP-010",
@@ -478,14 +478,14 @@ run_test(
         "performance_rating":  3.5,
     },
     expected_status = "completed",
-    expected_action = "forward_to_hr",
+    expected_action = "save_data",
 )
 
 # TC-DT-013
 # Rating: 3.0 — common passing value, above threshold
 run_test(
     test_id         = "TC-DT-013",
-    description     = "Passing rating 3.0 — Kevin Mendoza (EMP-006) → forward to HR",
+    description     = "Passing rating 3.0 — Kevin Mendoza (EMP-006) → save data",
     flowchart_step  = "Employee Rating < 2.5? → No (3.0, above threshold) → Passed → Save Data",
     form            = {
         "employee_id":         "EMP-006",
@@ -493,7 +493,7 @@ run_test(
         "performance_rating":  3.0,
     },
     expected_status = "completed",
-    expected_action = "forward_to_hr",
+    expected_action = "save_data",
 )
 
 # TC-DT-014
@@ -501,7 +501,7 @@ run_test(
 # Pair with TC-DT-016: together they bracket the exact decision point
 run_test(
     test_id         = "TC-DT-014",
-    description     = "Upper boundary 2.51 — Daniel Ramos (EMP-008) → forward to HR",
+    description     = "Upper boundary 2.51 — Daniel Ramos (EMP-008) → save data",
     flowchart_step  = "Employee Rating < 2.5? → No (2.51, just above threshold) → Passed → Save Data",
     form            = {
         "employee_id":         "EMP-008",
@@ -509,7 +509,7 @@ run_test(
         "performance_rating":  2.51,        # Just above — must be PASSING
     },
     expected_status = "completed",
-    expected_action = "forward_to_hr",
+    expected_action = "save_data",
 )
 
 # TC-DT-015
@@ -518,7 +518,7 @@ run_test(
 # This is the single most critical boundary test in the entire suite.
 run_test(
     test_id         = "TC-DT-015",
-    description     = "Exact threshold 2.5 — Patricia Garcia (EMP-005) → forward to HR",
+    description     = "Exact threshold 2.5 — Patricia Garcia (EMP-005) → save data",
     flowchart_step  = "Employee Rating < 2.5? → No (exactly 2.5) → Passed → Save Data",
     form            = {
         "employee_id":         "EMP-005",
@@ -526,7 +526,7 @@ run_test(
         "performance_rating":  2.5,         # Exactly at threshold — must be PASSING
     },
     expected_status = "completed",
-    expected_action = "forward_to_hr",
+    expected_action = "save_data",
 )
 
 # ── Failing ratings ───────────────────────────────────────────────────────────

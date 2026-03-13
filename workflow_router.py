@@ -190,10 +190,10 @@ class WorkflowRouter:
         # Maps to workflow.png:
         #   "Employee Rating < 3? → No → Passed → Save Data"
         # ==================================================================
-        if action == "forward_to_hr":
+        if action == "save_data":
             return {
                 "status":          "completed",
-                "stage":           "forwarded_to_hr",
+                "stage":           "data_saved",
                 "employee_id":     employee_id,
                 "employee_name":   employee["name"],
                 "routing_action":  action,
@@ -204,7 +204,7 @@ class WorkflowRouter:
                 "confidence_pct":  dt_result["confidence_pct"],
                 "notification": (
                     f"IPCR for {employee['name']} passed with a rating of {rating}. "
-                    f"Forwarded to HR for final processing."
+                    f"Data saved."
                 ),
             }
 
