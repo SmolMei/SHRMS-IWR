@@ -6,6 +6,12 @@
       "runtimeExecutable": "uvicorn",
       "runtimeArgs": ["api.main:app", "--reload", "--port", "8000"],
       "port": 8000
+    },
+    {
+      "name": "IWR Node Proxy",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["node-proxy/server.js"],
+      "port": 3000
     }
   ]
 }
