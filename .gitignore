@@ -11,3 +11,9 @@ Edits
 
 # Backup files (Git is the backup system now)
 rule_engine_backup.py
+
+# Secrets
+.env
+
+# Claude local settings
+.claude/settings.local.json
