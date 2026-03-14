@@ -11,8 +11,8 @@ python -X utf8 tests.py
 # One-time setup: generate training data, train models, self-check
 python setup.py
 
-# Run the system directly (no CLI yet — use workflow_router in code)
-python main.py
+# Run the interactive CLI demo
+python -X utf8 demo.py
 ```
 
 > `-X utf8` is required on Windows because tests.py uses Unicode box-drawing characters that cp1252 cannot encode.

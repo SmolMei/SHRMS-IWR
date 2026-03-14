@@ -1,10 +1,10 @@
 # =============================================================================
-# main.py
+# demo.py
 # SHRMS — Intelligent Workflow Routing
 # Interactive CLI Demo
 #
 # HOW TO RUN:
-#   python -X utf8 main.py
+#   python -X utf8 demo.py
 # =============================================================================
 
 from datetime import date, timedelta
@@ -19,22 +19,23 @@ _DEFAULT_START = date.today() + timedelta(days=10)
 
 # Leave types in display order (matches LEAVE_TYPE_ENCODING)
 _LEAVE_TYPES = [
-    ("vacation_leave",          "Vacation Leave"),
-    ("sick_leave",              "Sick Leave"),
-    ("maternity_leave",         "Maternity Leave"),
-    ("paternity_leave",         "Paternity Leave"),
-    ("solo_parent_leave",       "Solo Parent Leave"),
-    ("force_leave",             "Force Leave"),
-    ("special_privilege_leave", "Special Privilege Leave"),
-    ("wellness_leave",          "Wellness Leave"),
+    ("vacation_leave",                "Vacation Leave"),
+    ("sick_leave",                    "Sick Leave"),
+    ("maternity_leave",               "Maternity Leave"),
+    ("paternity_leave",               "Paternity Leave"),
+    ("solo_parent_leave",             "Solo Parent Leave"),
+    ("force_leave",                   "Force Leave"),
+    ("special_privilege_leave",       "Special Privilege Leave"),
+    ("wellness_leave",                "Wellness Leave"),
+    ("special_sick_leave_for_women",  "Special Sick Leave for Women"),
 ]
 
 # Which leave types require an attachment and what it's called
 _ATTACHMENTS = {
-    "sick_leave":              ("has_medical_certificate",   "Medical Certificate"),
-    "solo_parent_leave":       ("has_solo_parent_id",        "Solo Parent ID Card"),
-    "special_privilege_leave": ("has_written_justification", "Written Justification"),
-    "wellness_leave":          ("has_wellness_certificate",  "Wellness Certificate"),
+    "sick_leave":                   ("has_medical_certificate",  "Medical Certificate"),
+    "paternity_leave":              ("has_marriage_certificate", "Marriage Certificate"),
+    "solo_parent_leave":            ("has_solo_parent_id",       "Solo Parent ID Card"),
+    "special_sick_leave_for_women": ("has_medical_certificate",  "Medical Certificate"),
 }
 
 
@@ -120,11 +121,11 @@ def ask_leave_inputs(employee_id):
 
     while True:
         try:
-            choice = int(input("\nEnter leave type number (1-8): ").strip())
-            if 1 <= choice <= 8:
+            choice = int(input("\nEnter leave type number (1-9): ").strip())
+            if 1 <= choice <= 9:
                 leave_type, _ = _LEAVE_TYPES[choice - 1]
                 break
-            print("  Please enter a number between 1 and 8.")
+            print("  Please enter a number between 1 and 9.")
         except ValueError:
             print("  Please enter a valid number.")
 
@@ -166,10 +167,9 @@ def ask_leave_inputs(employee_id):
 
     # --- Attachment (conditional) ---
     attachment_fields = {
-        "has_medical_certificate":   False,
-        "has_solo_parent_id":        False,
-        "has_written_justification": False,
-        "has_wellness_certificate":  False,
+        "has_medical_certificate":  False,
+        "has_marriage_certificate": False,
+        "has_solo_parent_id":       False,
     }
     if leave_type in _ATTACHMENTS:
         field_key, cert_name = _ATTACHMENTS[leave_type]
@@ -266,14 +266,13 @@ def display_leave_result(application, result):
 
     # --- Layer 2: Decision Tree ---
     leave_type = application["leave_type"]
-    attachment_types = ("sick_leave", "solo_parent_leave", "special_privilege_leave", "wellness_leave")
-    has_att = (
-        (leave_type == "sick_leave"                and application.get("has_medical_certificate"))
-        or (leave_type == "solo_parent_leave"      and application.get("has_solo_parent_id"))
-        or (leave_type == "special_privilege_leave" and application.get("has_written_justification"))
-        or (leave_type == "wellness_leave"         and application.get("has_wellness_certificate"))
-        or leave_type not in attachment_types
-    )
+    required_checks = {
+        "sick_leave":                   application.get("has_medical_certificate", False),
+        "paternity_leave":              application.get("has_marriage_certificate", False),
+        "solo_parent_leave":            application.get("has_solo_parent_id", False),
+        "special_sick_leave_for_women": application.get("has_medical_certificate", False),
+    }
+    has_att = required_checks.get(leave_type, True)
     features = {
         "leave_type_encoded":      LEAVE_TYPE_ENCODING[leave_type],
         "days_requested":          application["days_requested"],
