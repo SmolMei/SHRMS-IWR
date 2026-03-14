@@ -1,5 +1,6 @@
 import sys
 import os
+from contextlib import asynccontextmanager
 
 # Ensure the project root is on the path so workflow_router can be imported
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -8,8 +9,20 @@ from fastapi import FastAPI, Depends
 from workflow_router import WorkflowRouter
 from api.schemas import IPCRRequest, LeaveRequest
 from api.auth import require_api_key
+from api.data_loader import load_from_hrms
 
-app = FastAPI(title="IWR API", description="Intelligent Workflow Routing — SHRMS integration layer")
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    load_from_hrms()  # fetch live data from Smart-HRMS before first request
+    yield
+
+
+app = FastAPI(
+    title="IWR API",
+    description="Intelligent Workflow Routing — SHRMS integration layer",
+    lifespan=lifespan,
+)
 
 # Singleton: models loaded once at startup, reused for every request
 _router = WorkflowRouter()
