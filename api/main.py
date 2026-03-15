@@ -1,5 +1,6 @@
 import sys
 import os
+import logging
 from contextlib import asynccontextmanager
 
 # Ensure the project root is on the path so workflow_router can be imported
@@ -14,6 +15,15 @@ from api.data_loader import load_from_hrms
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    # Attach a dedicated stdout handler so IWR audit logs are always visible
+    # (uvicorn's root logger is set to WARNING; this bypasses that filter)
+    _audit = logging.getLogger("workflow_router")
+    if not _audit.handlers:
+        _h = logging.StreamHandler()
+        _h.setFormatter(logging.Formatter("%(message)s"))
+        _audit.addHandler(_h)
+    _audit.setLevel(logging.INFO)
+    _audit.propagate = False
     load_from_hrms()  # fetch live data from Smart-HRMS before first request
     yield
 

@@ -45,9 +45,15 @@
 #   └─────────────────────────────────────────────────────┘
 # =============================================================================
 
+import logging
+import json
+from datetime import datetime, timezone
+
 from org_and_rules import EMPLOYEES, ROLE_ENCODING, LEAVE_TYPE_ENCODING
 from rule_engine import RuleEngine
 from decision_tree import IPCRDecisionTree, LeaveDecisionTree
+
+logger = logging.getLogger(__name__)
 
 
 # =============================================================================
@@ -69,6 +75,17 @@ class WorkflowRouter:
         evaluator info  — who handles the form next (assigned by Rule Engine)
         notification    — message to display to the user
     """
+
+    def _log_decision(self, result: dict, document_type: str) -> None:
+        entry = {
+            "timestamp":         datetime.now(timezone.utc).isoformat(),
+            "employee_id":       result.get("employee_id"),
+            "document_type":     document_type,
+            "routing_action":    result.get("routing_action") or result.get("action", "unknown"),
+            "confidence_pct":    result.get("confidence_pct"),
+            "compliance_passed": result.get("stage") != "compliance_check",
+        }
+        logger.info(json.dumps(entry))
 
     def __init__(self):
         self.rules   = RuleEngine()        # Layer 1 — Rule-Based Workflow
@@ -92,7 +109,7 @@ class WorkflowRouter:
     # Maps to: workflow.png — RIGHT (Evaluation) path
     # =========================================================================
 
-    def route_ipcr(self, form: dict) -> dict:
+    def _route_ipcr(self, form: dict) -> dict:
         """
         Routes an IPCR evaluation form through the full two-layer pipeline.
 
@@ -277,7 +294,7 @@ class WorkflowRouter:
     # Maps to: workflow.png — LEFT (Leave Application) path
     # =========================================================================
 
-    def route_leave(self, application: dict) -> dict:
+    def _route_leave(self, application: dict) -> dict:
         """
         Routes a leave application through the full two-layer pipeline.
 
@@ -608,4 +625,18 @@ class WorkflowRouter:
             "status": "error",
             "reason": f"Unexpected routing action from Decision Tree: '{action}'",
         }
+
+    # =========================================================================
+    # PUBLIC ENTRY POINTS — thin wrappers that log every routing decision
+    # =========================================================================
+
+    def route_ipcr(self, form: dict) -> dict:
+        result = self._route_ipcr(form)
+        self._log_decision(result, "ipcr")
+        return result
+
+    def route_leave(self, application: dict) -> dict:
+        result = self._route_leave(application)
+        self._log_decision(result, "leave")
+        return result
 
