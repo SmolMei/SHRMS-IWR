@@ -41,15 +41,26 @@
 #
 #    Hierarchy:
 #      John Reyes (Department Head)
-#        ├── Maria Santos (Administrative Officer II)
-#        │     ├── Patricia Garcia  (Administrative Aide I)
-#        │     ├── Kevin Mendoza    (Administrative Aide I)
-#        │     └── Lorraine Flores  (Administrative Aide I)
-#        ├── Mark Bautista (Administrative Officer II)
-#        │     ├── Daniel Ramos     (Administrative Aide I)
-#        │     └── Camille Navarro  (Administrative Aide I)
-#        └── Angela Cruz (Administrative Officer II)
-#              └── Joshua Aquino    (Administrative Aide I)
+#        ├── Maria Santos     (Administrative Officer II)
+#        ├── Mark Bautista    (Administrative Officer II)
+#        ├── Angela Cruz      (Administrative Officer II)
+#        ├── Patricia Garcia  (Administrative Aide I)
+#        ├── Kevin Mendoza    (Administrative Aide I)
+#        ├── Lorraine Flores  (Administrative Aide I)
+#        ├── Daniel Ramos     (Administrative Aide I)
+#        ├── Camille Navarro  (Administrative Aide I)
+#        ├── Joshua Aquino    (Administrative Aide I)
+#        ├── Ana Dela Cruz    (Administrative Aide I)
+#        ├── Ramon Villanueva (Administrative Aide I)
+#        ├── Josephine Pascual(Administrative Aide I)
+#        ├── Michael Torres   (Administrative Aide I)
+#        ├── Liza Castillo    (Administrative Aide I)
+#        ├── Roberto Jimenez  (Administrative Aide I)
+#        ├── Christine Morales(Administrative Aide I)
+#        ├── Ferdinand Aguilar(Administrative Aide I)
+#        ├── Maricel Dela Rosa(Administrative Aide I)
+#        ├── Benedict Mercado (Administrative Aide I)
+#        └── Theresa Evangelista (Administrative Aide I)
 #
 #    Each entry has:
 #      "name"          — employee full name
@@ -84,43 +95,95 @@ EMPLOYEES = {
         "supervisor_id": "EMP-001",   # Reports to John Reyes
     },
 
-    # --- Administrative Aides I under Maria Santos ---
+    # --- Administrative Aides I (all report directly to John Reyes) ---
 
     "EMP-005": {
         "name":          "Patricia Garcia",
         "role":          "Administrative Aide I",
-        "supervisor_id": "EMP-002",   # Reports to Maria Santos
+        "supervisor_id": "EMP-001",   # Reports to John Reyes
     },
     "EMP-006": {
         "name":          "Kevin Mendoza",
         "role":          "Administrative Aide I",
-        "supervisor_id": "EMP-002",   # Reports to Maria Santos
+        "supervisor_id": "EMP-001",   # Reports to John Reyes
     },
     "EMP-007": {
         "name":          "Lorraine Flores",
         "role":          "Administrative Aide I",
-        "supervisor_id": "EMP-002",   # Reports to Maria Santos
+        "supervisor_id": "EMP-001",   # Reports to John Reyes
     },
-
-    # --- Administrative Aides I under Mark Bautista ---
-
     "EMP-008": {
         "name":          "Daniel Ramos",
         "role":          "Administrative Aide I",
-        "supervisor_id": "EMP-003",   # Reports to Mark Bautista
+        "supervisor_id": "EMP-001",   # Reports to John Reyes
     },
     "EMP-009": {
         "name":          "Camille Navarro",
         "role":          "Administrative Aide I",
-        "supervisor_id": "EMP-003",   # Reports to Mark Bautista
+        "supervisor_id": "EMP-001",   # Reports to John Reyes
     },
-
-    # --- Administrative Aide I under Angela Cruz ---
-
     "EMP-010": {
         "name":          "Joshua Aquino",
         "role":          "Administrative Aide I",
-        "supervisor_id": "EMP-004",   # Reports to Angela Cruz
+        "supervisor_id": "EMP-001",   # Reports to John Reyes
+    },
+
+    # --- Additional Administrative Aides I (all report directly to John Reyes) ---
+
+    "EMP-011": {
+        "name":          "Ana Dela Cruz",
+        "role":          "Administrative Aide I",
+        "supervisor_id": "EMP-001",   # Reports to John Reyes
+    },
+    "EMP-012": {
+        "name":          "Ramon Villanueva",
+        "role":          "Administrative Aide I",
+        "supervisor_id": "EMP-001",   # Reports to John Reyes
+    },
+    "EMP-013": {
+        "name":          "Josephine Pascual",
+        "role":          "Administrative Aide I",
+        "supervisor_id": "EMP-001",   # Reports to John Reyes
+    },
+    "EMP-014": {
+        "name":          "Michael Torres",
+        "role":          "Administrative Aide I",
+        "supervisor_id": "EMP-001",   # Reports to John Reyes
+    },
+    "EMP-015": {
+        "name":          "Liza Castillo",
+        "role":          "Administrative Aide I",
+        "supervisor_id": "EMP-001",   # Reports to John Reyes
+    },
+    "EMP-016": {
+        "name":          "Roberto Jimenez",
+        "role":          "Administrative Aide I",
+        "supervisor_id": "EMP-001",   # Reports to John Reyes
+    },
+    "EMP-017": {
+        "name":          "Christine Morales",
+        "role":          "Administrative Aide I",
+        "supervisor_id": "EMP-001",   # Reports to John Reyes
+    },
+    "EMP-018": {
+        "name":          "Ferdinand Aguilar",
+        "role":          "Administrative Aide I",
+        "supervisor_id": "EMP-001",   # Reports to John Reyes
+    },
+    "EMP-019": {
+        "name":          "Maricel Dela Rosa",
+        "role":          "Administrative Aide I",
+        "supervisor_id": "EMP-001",   # Reports to John Reyes
+    },
+    "EMP-020": {
+        "name":          "Benedict Mercado",
+        "role":          "Administrative Aide I",
+        "supervisor_id": "EMP-001",   # Reports to John Reyes
+    },
+    "EMP-021": {
+        "name":          "Theresa Evangelista",
+        "role":          "Administrative Aide I",
+        "supervisor_id": "EMP-001",   # Reports to John Reyes
     },
 }
 
@@ -146,11 +209,14 @@ LEAVE_RULES = {
     },
 
     "maternity_leave": {
-        "max_days": 105,
+        "max_days":               105,
+        "min_days_advance_notice": 30,  # Must file at least 30 days before expected delivery
     },
 
     "paternity_leave": {
-        "max_days": 7,
+        "max_days":                    7,
+        "min_days_advance_notice":     30,   # Must file at least 30 days before expected delivery
+        "requires_marriage_certificate": True,  # Marriage Certificate must be attached
     },
 
     "solo_parent_leave": {
@@ -159,18 +225,24 @@ LEAVE_RULES = {
     },
 
     "force_leave": {
-        "max_days_per_year":      5,            # Mandatory leave ordered by the agency head
-        "admin_initiated":        True,         # Filed by HR/management, not the employee
+        "max_days_per_year":      5,            # Uses vacation leave credits
+        "min_days_advance_notice": 5,           # Must file at least 5 days before start date
     },
 
     "special_privilege_leave": {
         "max_days_per_year":      3,            # CSC MC No. 6 s. 1996 — birthday, graduation, etc.
-        "requires_justification": True,         # Employee must state the specific occasion
+        "min_days_advance_notice": 5,           # Must file at least 5 days before start date
     },
 
     "wellness_leave": {
         "max_days_per_year":      5,            # Agency wellness program — mental health / medical
-        "requires_wellness_cert": True,         # Certificate from agency wellness officer required
+        "min_days_advance_notice": 5,           # Must file at least 5 days before start date
+    },
+
+    "special_sick_leave_for_women": {
+        "max_days":                    90,      # 3 months fixed entitlement
+        "min_days_advance_notice":      5,      # Must file at least 5 days before start date
+        "requires_medical_certificate": True,   # Medical certificate always required
     },
 
 }
@@ -214,14 +286,15 @@ IPCR_EVALUATOR_ID = None
 
 # Maps leave type text → integer
 LEAVE_TYPE_ENCODING = {
-    "vacation_leave":          0,
-    "sick_leave":              1,
-    "maternity_leave":         2,
-    "paternity_leave":         3,
-    "solo_parent_leave":       4,
-    "force_leave":             5,
-    "special_privilege_leave": 6,
-    "wellness_leave":          7,
+    "vacation_leave":               0,
+    "sick_leave":                   1,
+    "maternity_leave":              2,
+    "paternity_leave":              3,
+    "solo_parent_leave":            4,
+    "force_leave":                  5,
+    "special_privilege_leave":      6,
+    "wellness_leave":               7,
+    "special_sick_leave_for_women": 8,
 }
 
 # Maps employee role text → integer
@@ -279,7 +352,7 @@ IPCR_DT_ACTIONS = {
 # The Decision Tree uses all 7 together to determine the next routing action.
 LEAVE_FEATURES = [
     # --- Application fields ---
-    "leave_type_encoded",      # int   — encoded leave type (0–7)
+    "leave_type_encoded",      # int   — encoded leave type (0–8)
     "days_requested",          # int   — number of days filed
     "days_balance",            # int   — remaining leave credits (0 for fixed-entitlement)
     "has_required_attachment", # int   — 1 if required document attached, 0 if not

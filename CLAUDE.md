@@ -61,6 +61,8 @@ Caller → WorkflowRouter → Layer 1: RuleEngine → Layer 2: DecisionTree
 - `IPCR_EVALUATOR_ID` — set to `None` (each employee evaluated by their supervisor) or `"EMP-001"` to override all evaluations to the Department Head
 - `ROLE_ENCODING`, `LEAVE_TYPE_ENCODING` — integer encodings for ML features; **must match** what was used during training
 
+**`org_and_rules_no_pmt.py`** — backup of `org_and_rules.py` for use when the Department Head's IPCR is handled outside the system. Identical to `org_and_rules.py` except `PMT-001` is absent and `EMP-001.supervisor_id = None`. To activate: rename current `org_and_rules.py` → `org_and_rules_pmt.py`, then rename this file → `org_and_rules.py`. No retraining needed.
+
 ### Encodings contract
 
 The integer encodings in `org_and_rules.py` must be consistent across three files: `org_and_rules.py`, `training_data.py`, and `workflow_router.py`. If you add a new role or leave type, update all three and retrain. Current leave type encoding goes 0–8 (9 types).
