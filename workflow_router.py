@@ -354,8 +354,7 @@ class WorkflowRouter:
         #   Rule 1  — Employee must exist in the system
         #   Rule 2  — Leave type must be a recognized CSC category
         #   Rule 3  — Days requested must be >= 1
-        #   Rule 4  — Vacation/sick/force leave cannot exceed remaining balance
-        #   Rule 5  — Fixed-entitlement leaves cannot exceed annual cap
+        #   Rule 4  — Fixed-entitlement leaves cannot exceed annual cap
         #   Rule 6  — Advance notice (vacation 5d, force 5d, maternity/paternity 30d, etc.)
         #   Rule 7  — Sick leave > 6 days requires a medical certificate
         #   Rule 8  — Solo Parent Leave requires a Solo Parent ID card

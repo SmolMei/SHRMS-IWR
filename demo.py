@@ -139,15 +139,7 @@ def ask_leave_inputs(employee_id):
         except ValueError:
             print("  Please enter a whole number.")
 
-    # --- Remaining balance ---
-    while True:
-        try:
-            balance = int(input("Remaining leave balance: ").strip())
-            if balance >= 0:
-                break
-            print("  Balance cannot be negative.")
-        except ValueError:
-            print("  Please enter a whole number.")
+    # (balance check removed — Smart-HRMS enforces leave credits independently)
 
     # --- Start date ---
     default_str = _DEFAULT_START.strftime("%Y-%m-%d")
@@ -180,7 +172,6 @@ def ask_leave_inputs(employee_id):
         "employee_id":               employee_id,
         "leave_type":                leave_type,
         "days_requested":            days,
-        "days_remaining_balance":    balance,
         "start_date":                start_date,
         **attachment_fields,
         # Fresh submission — decision state always starts at 0
@@ -276,7 +267,6 @@ def display_leave_result(application, result):
     features = {
         "leave_type_encoded":      LEAVE_TYPE_ENCODING[leave_type],
         "days_requested":          application["days_requested"],
-        "days_balance":            application["days_remaining_balance"],
         "has_required_attachment": 1 if has_att else 0,
         "dh_decision":             application["dh_decision"],
         "hr_decision":             application["hr_decision"],

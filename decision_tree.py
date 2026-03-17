@@ -477,7 +477,6 @@ class LeaveDecisionTree:
     Input features (from org_and_rules.LEAVE_FEATURES):
         leave_type_encoded       — leave type as integer (0–7)
         days_requested           — number of days filed
-        days_balance             — remaining credits (0 for fixed-entitlement)
         has_required_attachment  — 1 if required document attached, 0 if not
         dh_decision              — 0=pending, 1=approved, 2=rejected
         hr_decision              — 0=pending, 1=approved, 2=rejected
@@ -774,7 +773,6 @@ class LeaveDecisionTree:
             features (dict) — must contain all keys in LEAVE_FEATURES:
                 leave_type_encoded       (int)   — 0–7
                 days_requested           (int)
-                days_balance             (int)
                 has_required_attachment  (int)   — 0 or 1
                 dh_decision              (int)   — 0=pending, 1=approved, 2=rejected
                 hr_decision              (int)   — 0=pending, 1=approved, 2=rejected

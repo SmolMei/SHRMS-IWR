@@ -951,7 +951,7 @@ def run_leave_test(
 #   TC-LV-001 — Rule 1:  Unknown employee
 #   TC-LV-002 — Rule 2:  Unrecognized leave type
 #   TC-LV-003 — Rule 3:  Days requested = 0
-#   TC-LV-004 — Rule 4:  Vacation leave exceeds remaining balance
+#   TC-LV-004 — No balance check: Vacation leave, 15 days → routed to DH
 #   TC-LV-005 — Rule 5:  Paternity leave exceeds annual cap (7 days)
 #   TC-LV-006 — Rule 6:  Vacation leave filed less than 5 days in advance
 #   TC-LV-007 — Rule 7:  Sick leave > 6 days without medical certificate
@@ -960,7 +960,7 @@ def run_leave_test(
 #   TC-LV-010 — Rule 6:  Paternity leave filed < 30 days before start
 #   TC-LV-011 — Rule 6:  Maternity leave filed < 30 days before start
 #   TC-LV-012 — Rule 6:  Force leave filed < 5 days before start
-#   TC-LV-013 — Rule 4:  Force leave exceeds vacation leave balance
+#   TC-LV-013 — No balance check: Force leave, 4 days → routed to DH
 #   TC-LV-014 — Rule 10: Special Sick Leave for Women without medical certificate
 # =============================================================================
 
