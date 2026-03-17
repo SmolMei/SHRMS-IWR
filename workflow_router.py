@@ -454,7 +454,7 @@ class WorkflowRouter:
                             f"Leave application for {employee['name']} "
                             f"({leave_type.replace('_', ' ').title()}, "
                             f"{application.get('days_requested')} day(s)) "
-                            f"has been approved. Leave credits have been deducted."
+                            f"has been approved."
                         ),
                     }
 
@@ -590,7 +590,7 @@ class WorkflowRouter:
                     f"Leave application for {employee['name']} "
                     f"({leave_type.replace('_', ' ').title()}, "
                     f"{application.get('days_requested')} day(s)) "
-                    f"has been approved. Leave credits have been deducted."
+                    f"has been approved."
                 )
             elif dh_dec == 2:
                 msg = (
