@@ -1,12 +1,31 @@
 # =============================================================================
-# org_and_rules.py
+# org_and_rules_no_pmt.py
 # SHRMS — Intelligent Workflow Routing
-# Task 1 of 7 — Knowledge Base
+# Knowledge Base — Backup (No PMT Evaluator for Department Head)
 #
 # WHAT THIS FILE IS:
-#   The Knowledge Base of the Rule-Based Expert System.
-#   It contains ONLY facts — no logic, no conditions, no functions.
-#   Every other file in the system reads from this one.
+#   A backup of org_and_rules.py saved before the PMT (Performance Management
+#   Team) evaluator was assigned to the Department Head (EMP-001).
+#
+#   In this version:
+#     - EMP-001 (John Reyes) has supervisor_id = None
+#     - The Department Head cannot submit an IPCR through this system
+#     - Rule 2 in check_ipcr() blocks EMP-001 with:
+#       "John Reyes is the Department Head and cannot be evaluated
+#        through this system."
+#
+# WHEN TO USE:
+#   Swap this file in as org_and_rules.py if the LGU decides that the
+#   Department Head's performance evaluation is handled outside the system
+#   (e.g., manually or through a separate provincial-level process) and
+#   does not need to be routed through the Smart HRMS.
+#
+# HOW TO SWAP IN:
+#   1. Rename the current org_and_rules.py → org_and_rules_pmt.py
+#   2. Rename this file → org_and_rules.py
+#   3. Run python tests.py to confirm TC-RE-002 passes as expected
+#      (expects status=returned for EMP-001 submission)
+#   No retraining of Decision Tree models is needed.
 #
 # CONTAINS:
 #   1. Admin Office org chart   (from Admin_Office_Structure.png)
@@ -52,18 +71,10 @@
 
 EMPLOYEES = {
 
-    # --- Performance Management Team (evaluates the Department Head) ---
-
-    "PMT-001": {
-        "name":          "Performance Management Team",
-        "role":          "Performance Management Team",
-        "supervisor_id": None,        # External evaluator — no supervisor in this office
-    },
-
     "EMP-001": {
         "name":          "John Reyes",
         "role":          "Department Head",
-        "supervisor_id": "PMT-001",   # Evaluated by the Performance Management Team
+        "supervisor_id": None,        # Top of the office — no supervisor above him
     },
 
     # --- Administrative Officers II (report directly to John Reyes) ---
@@ -343,7 +354,6 @@ LEAVE_FEATURES = [
     # --- Application fields ---
     "leave_type_encoded",      # int   — encoded leave type (0–8)
     "days_requested",          # int   — number of days filed
-    "days_balance",            # int   — remaining leave credits (0 for fixed-entitlement)
     "has_required_attachment", # int   — 1 if required document attached, 0 if not
 
     # --- Decision state fields ---

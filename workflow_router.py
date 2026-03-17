@@ -311,7 +311,6 @@ class WorkflowRouter:
             employee_id               (str)   e.g. "EMP-005"
             leave_type                (str)   e.g. "vacation_leave"
             days_requested            (int)   number of days applied for
-            days_remaining_balance    (int)   remaining credits (0 for fixed-entitlement)
             start_date                (date)  planned start date — used by Rule Engine
 
             # --- Attachments (for Rule Engine compliance check) ---
@@ -404,7 +403,6 @@ class WorkflowRouter:
         features = {
             "leave_type_encoded":      LEAVE_TYPE_ENCODING.get(leave_type, 0),
             "days_requested":          application.get("days_requested", 1),
-            "days_balance":            application.get("days_remaining_balance", 0),
             "has_required_attachment": has_attachment,
             "dh_decision":             int(application.get("dh_decision", 0)),
             "hr_decision":             int(application.get("hr_decision", 0)),

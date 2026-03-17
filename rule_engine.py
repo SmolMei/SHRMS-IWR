@@ -72,7 +72,6 @@ class RuleEngine:
                 employee_id             (str)  — e.g. "EMP-005"
                 leave_type              (str)  — e.g. "vacation_leave"
                 days_requested          (int)  — e.g. 3
-                days_remaining_balance  (int)  — e.g. 10
                 start_date              (date) — e.g. date(2025, 9, 1)
                 has_medical_certificate  (bool) — True or False
                 has_solo_parent_id       (bool) — True or False
@@ -87,7 +86,6 @@ class RuleEngine:
         employee_id  = application.get("employee_id")
         leave_type   = application.get("leave_type")
         days_req     = application.get("days_requested", 0)
-        days_balance = application.get("days_remaining_balance", 0)
         start_date   = application.get("start_date", date.today())
 
         # ------------------------------------------------------------------
@@ -113,22 +111,7 @@ class RuleEngine:
             return False, "Days requested must be at least 1."
 
         # ------------------------------------------------------------------
-        # RULE 4: Vacation, sick, and force leave cannot exceed remaining balance
-        # Source: CSC Omnibus Rules — leave credit system
-        # Force leave uses the employee's vacation leave credit pool.
-        # IF leave_type in (vacation, sick, force)
-        # AND days_requested > days_remaining_balance THEN return
-        # ------------------------------------------------------------------
-        if leave_type in ("vacation_leave", "sick_leave", "force_leave"):
-            if days_req > days_balance:
-                return False, (
-                    f"Insufficient leave balance. "
-                    f"You requested {days_req} day(s) but only have "
-                    f"{days_balance} day(s) remaining."
-                )
-
-        # ------------------------------------------------------------------
-        # RULE 5: Fixed-entitlement leaves cannot exceed their annual cap
+        # RULE 4: Fixed-entitlement leaves cannot exceed their annual cap
         # Covers: maternity (105), paternity (7), solo parent (7),
         #         force (5), special privilege (3), wellness (5),
         #         special sick leave for women (90)

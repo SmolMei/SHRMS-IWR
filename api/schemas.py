@@ -13,7 +13,6 @@ class LeaveRequest(BaseModel):
     employee_id: str
     leave_type: str
     days_requested: int
-    days_remaining_balance: int
     start_date: date
     has_medical_certificate: bool
     has_solo_parent_id: bool

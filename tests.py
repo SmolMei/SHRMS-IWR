@@ -170,22 +170,21 @@ run_test(
 
 # TC-RE-002
 # Scenario : Department Head submits a fresh IPCR form
+# Config   : no-pmt — EMP-001 has no supervisor; PMT-001 is absent from the system.
+#            The Department Head's IPCR is handled outside IWR in this configuration.
 # Rule     : Rule 2 — Employee must have an assigned evaluator
-#            EMP-001 (John Reyes) is evaluated by the Performance Management Team
-#            (PMT-001), not an immediate supervisor within the office.
-# Expected : Form routed to Performance Management Team
+# Expected : Form returned — no evaluator assigned for the Department Head
 run_test(
     test_id            = "TC-RE-002",
-    description        = "Department Head submits IPCR — John Reyes (EMP-001) → Performance Management Team",
-    flowchart_step     = "Check Employee ID → evaluator assigned (PMT) → route to PMT",
+    description        = "Department Head submits IPCR (no-pmt config) — EMP-001 has no evaluator → returned",
+    flowchart_step     = "Check Employee ID → no supervisor assigned → return",
     form               = {
         "employee_id":         "EMP-001",   # John Reyes — Department Head
         "is_first_submission": True,
         "performance_rating":  None,
     },
-    expected_status    = "routed",
-    expected_action    = "route_to_evaluator",
-    expected_evaluator = "Performance Management Team",
+    expected_status    = "returned",
+    expected_action    = "correct_and_resubmit",
 )
 
 # TC-RE-003
@@ -986,7 +985,6 @@ run_leave_test(
         "employee_id":           "EMP-999",
         "leave_type":            "vacation_leave",
         "days_requested":        3,
-        "days_remaining_balance": 10,
         "start_date":            _future,
         "dh_decision":           0,
         "hr_decision":           0,
@@ -1008,7 +1006,6 @@ run_leave_test(
         "employee_id":           "EMP-005",
         "leave_type":            "nap_leave",
         "days_requested":        3,
-        "days_remaining_balance": 10,
         "start_date":            _future,
         "dh_decision":           0,
         "hr_decision":           0,
@@ -1030,7 +1027,6 @@ run_leave_test(
         "employee_id":           "EMP-006",
         "leave_type":            "vacation_leave",
         "days_requested":        0,
-        "days_remaining_balance": 10,
         "start_date":            _future,
         "dh_decision":           0,
         "hr_decision":           0,
@@ -1041,25 +1037,24 @@ run_leave_test(
 )
 
 # TC-LV-004
-# Scenario : Employee requests 15 vacation leave days but only has 3 credits
-# Rule     : Rule 4 — Vacation/sick leave cannot exceed remaining balance
-# Expected : Application returned — insufficient balance
+# Scenario : Employee requests 15 vacation leave days (balance not checked in this config)
+# Rule     : Balance check removed — Smart-HRMS enforces leave credits independently
+# Expected : Application routed to Department Head (dh_decision=0)
 run_leave_test(
     test_id         = "TC-LV-004",
-    description     = "Vacation leave exceeds balance (15 requested, 3 remaining) — Lorraine Flores (EMP-007)",
-    flowchart_step  = "Compliance Check → days_requested > days_balance → Return",
+    description     = "Vacation leave, 15 days, no balance check — routed to DH — Lorraine Flores (EMP-007)",
+    flowchart_step  = "Layer 2 DT → dh_decision=0 → route_to_department_head",
     application     = {
         "employee_id":           "EMP-007",
         "leave_type":            "vacation_leave",
         "days_requested":        15,
-        "days_remaining_balance": 3,
         "start_date":            _future,
         "dh_decision":           0,
         "hr_decision":           0,
         "has_rejection_reason":  0,
     },
-    expected_status = "returned",
-    expected_action = "returned",
+    expected_status = "routed",
+    expected_action = "route_to_department_head",
 )
 
 # TC-LV-005
@@ -1074,7 +1069,6 @@ run_leave_test(
         "employee_id":           "EMP-008",
         "leave_type":            "paternity_leave",
         "days_requested":        10,
-        "days_remaining_balance": 0,
         "start_date":            _future,
         "dh_decision":           0,
         "hr_decision":           0,
@@ -1096,7 +1090,6 @@ run_leave_test(
         "employee_id":           "EMP-009",
         "leave_type":            "vacation_leave",
         "days_requested":        3,
-        "days_remaining_balance": 10,
         "start_date":            _soon,
         "dh_decision":           0,
         "hr_decision":           0,
@@ -1118,7 +1111,6 @@ run_leave_test(
         "employee_id":              "EMP-010",
         "leave_type":               "sick_leave",
         "days_requested":           7,
-        "days_remaining_balance":   10,
         "start_date":               _future,
         "has_medical_certificate":  False,
         "dh_decision":              0,
@@ -1141,7 +1133,6 @@ run_leave_test(
         "employee_id":           "EMP-005",
         "leave_type":            "solo_parent_leave",
         "days_requested":        3,
-        "days_remaining_balance": 0,
         "start_date":            _future,
         "has_solo_parent_id":    False,
         "dh_decision":           0,
@@ -1164,7 +1155,6 @@ run_leave_test(
         "employee_id":            "EMP-006",
         "leave_type":             "paternity_leave",
         "days_requested":         5,
-        "days_remaining_balance": 0,
         "start_date":             _far_future,
         "has_marriage_certificate": False,
         "dh_decision":            0,
@@ -1187,7 +1177,6 @@ run_leave_test(
         "employee_id":             "EMP-007",
         "leave_type":              "paternity_leave",
         "days_requested":          5,
-        "days_remaining_balance":  0,
         "start_date":              _close_30,
         "has_marriage_certificate": True,
         "dh_decision":             0,
@@ -1210,7 +1199,6 @@ run_leave_test(
         "employee_id":            "EMP-007",
         "leave_type":             "maternity_leave",
         "days_requested":         60,
-        "days_remaining_balance": 0,
         "start_date":             _close_30,
         "dh_decision":            0,
         "hr_decision":            0,
@@ -1232,7 +1220,6 @@ run_leave_test(
         "employee_id":            "EMP-009",
         "leave_type":             "force_leave",
         "days_requested":         2,
-        "days_remaining_balance": 10,
         "start_date":             _soon,
         "dh_decision":            0,
         "hr_decision":            0,
@@ -1243,25 +1230,24 @@ run_leave_test(
 )
 
 # TC-LV-013
-# Scenario : Force Leave of 4 days but employee only has 2 vacation leave credits
-# Rule     : Rule 4 (balance) — Force Leave uses vacation leave credits; cannot exceed balance
-# Expected : Application returned — insufficient balance
+# Scenario : Force Leave of 4 days (balance not checked in this config)
+# Rule     : Balance check removed — Smart-HRMS enforces leave credits independently
+# Expected : Application routed to Department Head (dh_decision=0)
 run_leave_test(
     test_id         = "TC-LV-013",
-    description     = "Force Leave exceeds vacation balance (4 requested, 2 remaining) — Joshua Aquino (EMP-010)",
-    flowchart_step  = "Compliance Check → force_leave days_requested > days_balance → Return",
+    description     = "Force Leave, 4 days, no balance check — routed to DH — Joshua Aquino (EMP-010)",
+    flowchart_step  = "Layer 2 DT → dh_decision=0 → route_to_department_head",
     application     = {
         "employee_id":            "EMP-010",
         "leave_type":             "force_leave",
         "days_requested":         4,
-        "days_remaining_balance": 2,
         "start_date":             _future,
         "dh_decision":            0,
         "hr_decision":            0,
         "has_rejection_reason":   0,
     },
-    expected_status = "returned",
-    expected_action = "returned",
+    expected_status = "routed",
+    expected_action = "route_to_department_head",
 )
 
 # TC-LV-014
@@ -1276,7 +1262,6 @@ run_leave_test(
         "employee_id":             "EMP-005",
         "leave_type":              "special_sick_leave_for_women",
         "days_requested":          30,
-        "days_remaining_balance":  0,
         "start_date":              _future,
         "has_medical_certificate": False,
         "dh_decision":             0,
@@ -1335,7 +1320,6 @@ run_leave_test(
         "employee_id":           "EMP-005",
         "leave_type":            "vacation_leave",
         "days_requested":        3,
-        "days_remaining_balance": 10,
         "start_date":            _future,
         "dh_decision":           0,
         "hr_decision":           0,
@@ -1358,7 +1342,6 @@ run_leave_test(
         "employee_id":           "EMP-008",
         "leave_type":            "sick_leave",
         "days_requested":        2,
-        "days_remaining_balance": 8,
         "start_date":            _future,
         "has_medical_certificate": True,
         "dh_decision":           0,
@@ -1382,7 +1365,6 @@ run_leave_test(
         "employee_id":           "EMP-007",
         "leave_type":            "maternity_leave",
         "days_requested":        60,
-        "days_remaining_balance": 0,
         "start_date":            _far_future,
         "dh_decision":           0,
         "hr_decision":           0,
@@ -1405,7 +1387,6 @@ run_leave_test(
         "employee_id":           "EMP-009",
         "leave_type":            "solo_parent_leave",
         "days_requested":        3,
-        "days_remaining_balance": 0,
         "start_date":            _future,
         "has_solo_parent_id":    True,
         "dh_decision":           0,
@@ -1429,7 +1410,6 @@ run_leave_test(
         "employee_id":            "EMP-010",
         "leave_type":             "special_privilege_leave",
         "days_requested":         1,
-        "days_remaining_balance": 0,
         "start_date":             _future,
         "dh_decision":            0,
         "hr_decision":            0,
@@ -1452,7 +1432,6 @@ run_leave_test(
         "employee_id":            "EMP-006",
         "leave_type":             "wellness_leave",
         "days_requested":         2,
-        "days_remaining_balance": 0,
         "start_date":             _future,
         "dh_decision":            0,
         "hr_decision":            0,
@@ -1477,7 +1456,6 @@ run_leave_test(
         "employee_id":           "EMP-005",
         "leave_type":            "vacation_leave",
         "days_requested":        3,
-        "days_remaining_balance": 10,
         "start_date":            _future,
         "dh_decision":           1,
         "hr_decision":           0,
@@ -1500,7 +1478,6 @@ run_leave_test(
         "employee_id":            "EMP-005",
         "leave_type":             "sick_leave",
         "days_requested":         5,
-        "days_remaining_balance":  10,
         "start_date":             _future,
         "has_medical_certificate": True,
         "dh_decision":            1,
@@ -1524,7 +1501,6 @@ run_leave_test(
         "employee_id":             "EMP-008",
         "leave_type":              "paternity_leave",
         "days_requested":          7,
-        "days_remaining_balance":  0,
         "start_date":              _far_future,
         "has_marriage_certificate": True,
         "dh_decision":             1,
@@ -1550,7 +1526,6 @@ run_leave_test(
         "employee_id":           "EMP-005",
         "leave_type":            "vacation_leave",
         "days_requested":        3,
-        "days_remaining_balance": 10,
         "start_date":            _future,
         "dh_decision":           2,
         "hr_decision":           0,
@@ -1573,7 +1548,6 @@ run_leave_test(
         "employee_id":           "EMP-005",
         "leave_type":            "vacation_leave",
         "days_requested":        3,
-        "days_remaining_balance": 10,
         "start_date":            _future,
         "dh_decision":           1,
         "hr_decision":           2,
@@ -1598,7 +1572,6 @@ run_leave_test(
         "employee_id":           "EMP-009",
         "leave_type":            "vacation_leave",
         "days_requested":        3,
-        "days_remaining_balance": 10,
         "start_date":            _future,
         "dh_decision":           1,
         "hr_decision":           1,
@@ -1620,7 +1593,6 @@ run_leave_test(
         "employee_id":           "EMP-005",
         "leave_type":            "vacation_leave",
         "days_requested":        3,
-        "days_remaining_balance": 10,
         "start_date":            _future,
         "dh_decision":           2,
         "hr_decision":           0,
@@ -1642,7 +1614,6 @@ run_leave_test(
         "employee_id":           "EMP-005",
         "leave_type":            "vacation_leave",
         "days_requested":        3,
-        "days_remaining_balance": 10,
         "start_date":            _future,
         "dh_decision":           1,
         "hr_decision":           2,
@@ -1664,7 +1635,6 @@ run_leave_test(
         "employee_id":           "EMP-009",
         "leave_type":            "force_leave",
         "days_requested":        5,
-        "days_remaining_balance": 5,
         "start_date":            _future,
         "dh_decision":           1,
         "hr_decision":           1,
@@ -1686,7 +1656,6 @@ run_leave_test(
         "employee_id":             "EMP-005",
         "leave_type":              "special_sick_leave_for_women",
         "days_requested":          30,
-        "days_remaining_balance":  0,
         "start_date":              _future,
         "has_medical_certificate": True,
         "dh_decision":             0,
@@ -1719,7 +1688,6 @@ run_leave_test(
         "employee_id":            "EMP-001",
         "leave_type":             "vacation_leave",
         "days_requested":         3,
-        "days_remaining_balance": 10,
         "start_date":             _future,
         "dh_decision":            0,
         "hr_decision":            0,
@@ -1741,7 +1709,6 @@ run_leave_test(
         "employee_id":            "EMP-001",
         "leave_type":             "sick_leave",
         "days_requested":         2,
-        "days_remaining_balance": 15,
         "start_date":             _future,
         "dh_decision":            0,
         "hr_decision":            1,
@@ -1762,7 +1729,6 @@ run_leave_test(
         "employee_id":            "EMP-001",
         "leave_type":             "vacation_leave",
         "days_requested":         5,
-        "days_remaining_balance": 10,
         "start_date":             _future,
         "dh_decision":            0,
         "hr_decision":            2,
@@ -1783,7 +1749,6 @@ run_leave_test(
         "employee_id":            "EMP-001",
         "leave_type":             "vacation_leave",
         "days_requested":         5,
-        "days_remaining_balance": 10,
         "start_date":             _future,
         "dh_decision":            0,
         "hr_decision":            2,

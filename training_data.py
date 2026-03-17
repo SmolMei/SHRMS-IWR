@@ -234,13 +234,6 @@ def generate_leave_data(samples_per_employee=100):
 
             days_req = int(np.random.randint(1, max_days + 1))
 
-            # Vacation/sick/force: tracked balance. All others: fixed entitlement → 0
-            # Force leave draws from the vacation leave credit pool.
-            if leave_type in ("vacation_leave", "sick_leave", "force_leave"):
-                days_balance = int(np.random.randint(days_req, 16))
-            else:
-                days_balance = 0
-
             # Always 1 (compliant) — Rule Engine already rejected non-compliant apps
             # Occasional 0 (5% chance) so DT learns this field alone doesn't drive routing
             has_attachment = 1 if np.random.random() > 0.05 else 0
@@ -287,7 +280,6 @@ def generate_leave_data(samples_per_employee=100):
                 "employee_id":             emp_id,
                 "leave_type_encoded":      leave_enc,
                 "days_requested":          days_req,
-                "days_balance":            days_balance,
                 "has_required_attachment": has_attachment,
                 "dh_decision":             dh_decision,
                 "hr_decision":             hr_decision,
