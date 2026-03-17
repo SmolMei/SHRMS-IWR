@@ -225,7 +225,7 @@ LEAVE_RULES = {
     },
 
     "force_leave": {
-        "max_days_per_year":      5,            # Uses vacation leave credits
+        "max_days_per_year":      5,
         "min_days_advance_notice": 5,           # Must file at least 5 days before start date
     },
 

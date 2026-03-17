@@ -73,7 +73,7 @@ Adding employees to `EMPLOYEES` with an existing role title requires no retraini
 
 ### Current org structure
 
-All 20 employees (EMP-002 to EMP-021) report directly to John Reyes (EMP-001, Department Head). EMP-001 is evaluated by PMT-001 (Performance Management Team, external). For leave applications, the Department Head skips the DH-approval stage and goes directly to HR.
+All 20 employees (EMP-002 to EMP-021) report directly to John Reyes (EMP-001, Department Head). EMP-001 has no supervisor in this configuration — IPCR for the Department Head is handled outside the system. For leave applications, the Department Head skips the DH-approval stage and goes directly to HR.
 
 ### Training data and models
 
@@ -83,17 +83,17 @@ Generated/trained by `setup.py` via `training_data.py` and `decision_tree.py`. R
 
 | Leave Type | Max | Notice | Attachments |
 |---|---|---|---|
-| Vacation | 15 days/year, balance-limited | 5 days | — |
-| Sick | 15 days/year, balance-limited | — | Medical cert if > 6 days |
+| Vacation | 15 days/year | 5 days | — |
+| Sick | 15 days/year | — | Medical cert if > 6 days |
 | Maternity | 105 days | 30 days | — |
 | Paternity | 7 days | 30 days | Marriage Certificate |
 | Solo Parent | 7 days | — | Solo Parent ID |
-| Force | 5 days/year, uses vacation balance | 5 days | — |
+| Force | 5 days/year | 5 days | — |
 | Special Privilege | 3 days/year | 5 days | — |
 | Wellness | 5 days/year | 5 days | — |
 | Special Sick Leave for Women | 90 days | 5 days | Medical cert (always) |
 
-Force leave draws from the employee's vacation leave credit pool.
+Leave credit tracking is out of scope on this branch — enforced by Smart-HRMS.
 
 ### Key constants (IPCR)
 - Rating scale: 1.0–5.0

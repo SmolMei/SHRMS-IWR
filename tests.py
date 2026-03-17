@@ -1563,7 +1563,7 @@ run_leave_test(
 # TC-LV-026
 # Scenario : HR Officer approved the application — process complete
 # DT Class : 3 — completed (Trigger A: HR approved)
-# Expected : Completed — leave credits deducted
+# Expected : Completed — HR approved
 run_leave_test(
     test_id         = "TC-LV-026",
     description     = "HR approved vacation leave — Camille Navarro (EMP-009) → completed",
@@ -1624,7 +1624,7 @@ run_leave_test(
 )
 
 # TC-LV-029
-# Scenario : Force leave — HR approved (uses vacation leave balance, 5-day notice)
+# Scenario : Force leave — HR approved (5-day notice required)
 # DT Class : 3 — completed (Trigger A: HR approved)
 # Expected : Completed
 run_leave_test(
